@@ -2,7 +2,7 @@
 
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Actualizado](https://img.shields.io/badge/Actualizado-6_de_marzo_de_2026-indigo)
 
 ![ImgTools Pro Interface](assets/captura.png)
@@ -31,14 +31,14 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 
 ## ✨ Características principales
 
-*   **Encuadre Flexible:** Soporte para ratios 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
-*   **Zoom y Pan:** Control total con la rueda del ratón o arrastrando la imagen.
-*   **Efectos Pro:** Suavizado de bordes (viñeta) y radio de esquinas para avatares perfectos.
-*   **Motor de Exportación:** Escala por ancho, alto o lado largo a resoluciones desde 480p hasta 4K.
-*   **Compresión Local:** Todo se procesa en tu navegador. Ni tus fotos suben a un servidor, ni necesitas herramientas externas para reducir el peso.
-*   **Modo Oscuro:** Sincronizado con tu sistema, porque sabemos que editas cabeceras a las 2 de la mañana.
+*   **Encuadre flexible:** Soporte para ratios 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
+*   **Zoom y pan:** Control total con la rueda del ratón o arrastrando la imagen.
+*   **Efectos pro:** Suavizado de bordes (viñeta) y radio de esquinas para avatares perfectos.
+*   **Motor de exportación:** Escala por ancho, alto o lado largo a resoluciones desde 480p hasta 4K.
+*   **Compresión local:** Todo se procesa en tu navegador. Ni tus fotos suben a un servidor, ni necesitas herramientas externas para reducir el peso.
+*   **Modo oscuro:** Sincronizado con tu sistema, porque sabemos que editas cabeceras a las 2 de la mañana.
 
-## 🛠️ Instalación y Uso
+## 🛠️ Instalación y uso
 
 Esto es una **Single Page Application (SPA)** autocontenida. No necesitas instalar nada, ni configurar bases de datos, ni pelearte con dependencias de Node.js.
 
@@ -54,7 +54,4 @@ Si quieres añadir más modos (¿un "Modo Instagram"?, ¿un "Modo LinkedIn"?), l
 
 *   Creado con cariño por **[Pablo Felip Monferrer](https://www.linkedin.com/in/pfelipm/)**.
 *   Inspirado por la incansable (y a veces agotadora) labor de **BalBino** manteniendo la web de [GEG Spain](https://gegspain.es/).
-*   Distribuido bajo la **Licencia MIT**.
-
----
-*Disclaimer: Esta herramienta se ha realizado desde el máximo respeto profesional. BalBino, si lees esto, te queremos, pero las Google Slides eran demasiado. 😘*
+*   Distribuido bajo la licencia **GNU AGPL v3**.
