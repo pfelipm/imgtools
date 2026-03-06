@@ -40,11 +40,10 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 
 ## 🛠️ Instalación y uso
 
-Esto es una **Single Page Application (SPA)** autocontenida. No necesitas instalar nada, ni configurar bases de datos, ni pelearte con dependencias de Node.js.
+ImgTools es una **Single Page Application (SPA)** autocontenida. Tienes dos formas de usarla:
 
-1.  Clona este repositorio o descarga el archivo `index.html`.
-2.  Ábrelo en cualquier navegador moderno.
-3.  ¡Empieza a optimizar!
+1.  **En línea:** Accede directamente a la herramienta en **[imgtools.pablofelip.online](https://imgtools.pablofelip.online)**.
+2.  **Local:** Descarga el archivo `index.html` de este repositorio y ábrelo en cualquier navegador moderno. No necesita instalación ni dependencias.
 
 ## 🤝 Contribuciones
 
