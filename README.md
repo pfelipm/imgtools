@@ -52,6 +52,6 @@ Si quieres añadir más modos (¿un "Modo Instagram"?, ¿un "Modo LinkedIn"?), l
 
 ## ✍️ Autoría y agradecimientos
 
-*   Creado con cariño por **[Pablo Felip Monferrer](https://www.linkedin.com/in/pfelipm/)**.
+*   Creado con 💙 por [Pablo Felip Monferrer](https://www.linkedin.com/in/pfelipm/).
 *   Inspirado por la incansable (y a veces agotadora) labor de **BalBino** manteniendo la web de [GEG Spain](https://transformacioneducativa.es/).
 *   Distribuido bajo la licencia **GNU AGPL v3**.
