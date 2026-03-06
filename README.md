@@ -5,7 +5,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Actualizado](https://img.shields.io/badge/Actualizado-6_de_marzo_de_2026-indigo)
 
-![ImgTools Interface](assets/captura.png)
+![ImgTools Interface](assets/imgtools-interface.png)
 
 ## 🎯 ¿Por qué existe ImgTools?
 
