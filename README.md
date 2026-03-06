@@ -1,13 +1,13 @@
-# ImgTools Pro 📸 🚀
+# ImgTools 📸 🚀
 
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Actualizado](https://img.shields.io/badge/Actualizado-6_de_marzo_de_2026-indigo)
 
-![ImgTools Pro Interface](assets/captura.png)
+![ImgTools Interface](assets/captura.png)
 
-## 🎯 ¿Por qué existe ImgTools Pro?
+## 🎯 ¿Por qué existe ImgTools?
 
 Si eres parte del equipo de coordinación de **GEG Spain**, conoces el ritual. BalBino, con todo el amor del mundo y su infinita paciencia manteniendo nuestra web en WordPress, nos ha impuesto un flujo de trabajo digno de las doce pruebas de Hércules:
 
@@ -17,7 +17,7 @@ Si eres parte del equipo de coordinación de **GEG Spain**, conoces el ritual. B
 4.  Pasar por [TinyPNG](https://tinypng.com/) para que el archivo no pese más que nuestra conciencia.
 5.  Subir a WordPress.
 
-**¡Basta!** ImgTools Pro nace como una "protesta-broma" cariñosa para automatizar este proceso. Queremos mucho a BalBino, pero queremos más nuestro tiempo. Con esta herramienta, lo que antes llevaba 5 minutos ahora se hace en 5 segundos.
+**¡Basta!** ImgTools nace como una "protesta-broma" cariñosa para automatizar este proceso. Queremos mucho a BalBino, pero queremos más nuestro tiempo. Con esta herramienta, lo que antes llevaba 5 minutos ahora se hace en 5 segundos.
 
 ## 🚀 El mítico "Modo BalBino"
 
