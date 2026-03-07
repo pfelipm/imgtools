@@ -39,18 +39,33 @@
             justify-content: center;
             width: 100%;
             height: 100%;
+            position: relative;
         }
         canvas {
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             border: 4px solid #e0e7ff;
+            background-color: white;
         }
         .dark canvas {
             border-color: #3730a3;
+            background-color: #000;
         }
         canvas:hover { cursor: grab; }
         canvas:active { cursor: grabbing; }
         
-        /* Animación para el aviso de BalBino */
+        /* Líneas de guía para bloqueo de eje */
+        .guide-line {
+            position: absolute;
+            background-color: #4f46e5;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            opacity: 0.3;
+        }
+        .guide-v { width: 1px; height: 100%; top: 0; }
+        .guide-h { height: 1px; width: 100%; left: 0; }
+        .guide-active { opacity: 0.8; box-shadow: 0 0 8px #4f46e5; background-color: #6366f1; }
+
         @keyframes shine {
             0% { background-position: -100px; }
             100% { background-position: 200px; }
@@ -145,7 +160,7 @@
                 <div id="customRatioInputs" class="grid grid-cols-2 gap-2 hidden">
                     <input type="number" id="customW" placeholder="Ancho" value="16" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
                     <input type="number" id="customH" placeholder="Alto" value="9" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
-                    <p id="ratioError" class="col-span-2 text-[10px] text-red-500 hidden font-medium">Introduzca valores positivos mayores a cero</p>
+                    <p id="ratioError" class="col-span-2 text-[10px] text-red-500 hidden font-medium">Introduzca valores positivos</p>
                 </div>
             </div>
 
@@ -196,7 +211,6 @@
         <!-- 4. Exportación -->
         <section class="space-y-3">
             <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">4. Exportación</h2>
-            
             <div class="space-y-2">
                 <label class="text-xs text-gray-600 dark:text-gray-400 block">Escalar por</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -208,7 +222,6 @@
                     </select>
                     <input type="number" id="exportSize" value="1080" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500 disabled:bg-gray-50 dark:disabled:bg-gray-900">
                 </div>
-                
                 <div id="quickSizes" class="grid grid-cols-5 gap-1">
                     <button data-size="480" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">480</button>
                     <button data-size="720" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">720</button>
@@ -216,7 +229,7 @@
                     <button data-size="1440" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">2K</button>
                     <button data-size="2160" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">4K</button>
                 </div>
-                <p id="exportError" class="text-[10px] text-red-500 hidden font-medium">Introduzca un tamaño válido</p>
+                <p id="exportError" class="text-[10px] text-red-500 hidden font-medium text-center mt-1">Introduzca un tamaño válido</p>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -268,9 +281,12 @@
                     <span id="savingsTag" class="hidden ml-1 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold">-0%</span>
                 </div>
             </div>
-            <span class="hidden md:inline italic opacity-70 normal-case">Rueda ratón = Zoom | Arrastra = Encuadre</span>
+            <span class="hidden md:inline italic opacity-70 normal-case">Rueda = Zoom | Arrastra = Encuadre <span class="not-italic font-bold text-indigo-500/80">(Mayús = Bloquear eje)</span></span>
         </div>
         <div id="canvasWrapper" class="flex-1 bg-white/30 dark:bg-black/20 border border-gray-200 dark:border-gray-800 rounded-lg shadow-inner">
+            <!-- Guías visuales Shift -->
+            <div id="guideV" class="guide-line guide-v"></div>
+            <div id="guideH" class="guide-line guide-h"></div>
             <canvas id="canvas"></canvas>
         </div>
     </section>
@@ -282,7 +298,6 @@
         <button id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        
         <div class="flex flex-col md:flex-row gap-8 items-start">
             <div class="hidden md:flex p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-full text-indigo-600 dark:text-indigo-400 shrink-0">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -352,6 +367,8 @@
         destSize: document.getElementById('destSize'),
         savingsTag: document.getElementById('savingsTag'),
         canvasWrapper: document.getElementById('canvasWrapper'),
+        guideV: document.getElementById('guideV'),
+        guideH: document.getElementById('guideH'),
         themeToggle: document.getElementById('themeToggle'),
         sunIcon: document.getElementById('sunIcon'),
         moonIcon: document.getElementById('moonIcon'),
@@ -361,9 +378,8 @@
     };
 
     const ctx = elements.canvas.getContext('2d');
-    let image = null;
-    let originalFile = null;
-    let state = { zoom: 1, panX: 0, panY: 0, isDragging: false, lastX: 0, lastY: 0 };
+    let image = null, originalFile = null;
+    let state = { zoom: 1, panX: 0, panY: 0, isDragging: false, lastX: 0, lastY: 0, lockAxis: null };
 
     function formatBytes(bytes, decimals = 1) {
         if (bytes === 0) return '0 B';
@@ -475,12 +491,38 @@
         }
     }
 
+    function updateGuides(e) {
+        if (!state.isDragging || !e.shiftKey) {
+            elements.guideV.style.display = 'none'; elements.guideH.style.display = 'none';
+            elements.canvasWrapper.style.cursor = state.isDragging ? 'grabbing' : 'grab';
+            return;
+        }
+        const rect = elements.canvas.getBoundingClientRect();
+        const wrapperRect = elements.canvasWrapper.getBoundingClientRect();
+        elements.guideV.style.left = (rect.left - wrapperRect.left + rect.width / 2) + 'px';
+        elements.guideV.style.display = 'block';
+        elements.guideH.style.top = (rect.top - wrapperRect.top + rect.height / 2) + 'px';
+        elements.guideH.style.display = 'block';
+        
+        if (state.lockAxis === 'x') {
+            elements.guideH.classList.add('guide-active'); elements.guideV.classList.remove('guide-active');
+            elements.canvasWrapper.style.cursor = 'ew-resize';
+        } else if (state.lockAxis === 'y') {
+            elements.guideV.classList.add('guide-active'); elements.guideH.classList.remove('guide-active');
+            elements.canvasWrapper.style.cursor = 'ns-resize';
+        } else {
+            elements.guideV.classList.remove('guide-active'); elements.guideH.classList.remove('guide-active');
+            elements.canvasWrapper.style.cursor = 'move';
+        }
+    }
+
     [elements.aspectRatio, elements.exportAnchor, elements.exportSize, elements.scalingMethod, elements.feather, elements.radius, elements.customW, elements.customH].forEach(el => el.addEventListener('input', () => { updateUI(); updateCanvas(); }));
     elements.customRatioToggle.addEventListener('change', (e) => { elements.aspectRatio.disabled = e.target.checked; elements.customRatioInputs.classList.toggle('hidden', !e.target.checked); updateCanvas(); });
     elements.zoom.addEventListener('input', (e) => { state.zoom = parseFloat(e.target.value); updateUI(); updateCanvas(); });
     elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, state.zoom + 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     elements.zoomOut.addEventListener('click', () => { state.zoom = Math.max(0.1, state.zoom - 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     elements.fitCover.addEventListener('click', () => { state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1; updateUI(); updateCanvas(); });
+    
     elements.fitContain.addEventListener('click', () => {
         if (!image) return;
         let ratioVal = elements.aspectRatio.value;
@@ -512,14 +554,22 @@
         if (newZoom !== state.zoom) { state.zoom = newZoom; elements.zoom.value = state.zoom; updateUI(); updateCanvas(); }
     }, { passive: false });
 
-    elements.canvas.addEventListener('mousedown', (e) => { state.isDragging = true; state.lastX = e.clientX; state.lastY = e.clientY; });
-    window.addEventListener('mouseup', () => state.isDragging = false);
+    elements.canvas.addEventListener('mousedown', (e) => { state.isDragging = true; state.lastX = e.clientX; state.lastY = e.clientY; state.lockAxis = null; });
+    window.addEventListener('mouseup', () => { state.isDragging = false; state.lockAxis = null; elements.guideV.style.display = 'none'; elements.guideH.style.display = 'none'; elements.canvasWrapper.style.cursor = 'grab'; });
     window.addEventListener('mousemove', (e) => {
         if (!state.isDragging || !image) return;
         const rect = elements.canvas.getBoundingClientRect(), scaleX = elements.canvas.width / rect.width, scaleY = elements.canvas.height / rect.height;
-        state.panX += (e.clientX - state.lastX) * scaleX; state.panY += (e.clientY - state.lastY) * scaleY;
-        state.lastX = e.clientX; state.lastY = e.clientY; updateCanvas();
+        let dx = (e.clientX - state.lastX) * scaleX, dy = (e.clientY - state.lastY) * scaleY;
+        if (e.shiftKey) {
+            if (!state.lockAxis) { if (Math.abs(dx) > Math.abs(dy)) state.lockAxis = 'x'; else if (Math.abs(dy) > Math.abs(dx)) state.lockAxis = 'y'; }
+            if (state.lockAxis === 'x') dy = 0; else if (state.lockAxis === 'y') dx = 0;
+        } else { state.lockAxis = null; }
+        state.panX += dx; state.panY += dy; state.lastX = e.clientX; state.lastY = e.clientY;
+        updateCanvas(); updateGuides(e);
     });
+
+    window.addEventListener('keydown', (e) => { if (e.key === 'Shift' && state.isDragging) updateGuides(e); });
+    window.addEventListener('keyup', (e) => { if (e.key === 'Shift') { state.lockAxis = null; updateGuides(e); } });
 
     elements.canvas.addEventListener('touchstart', (e) => { if(e.touches.length === 1) { state.isDragging = true; state.lastX = e.touches[0].clientX; state.lastY = e.touches[0].clientY; } });
     window.addEventListener('touchend', () => state.isDragging = false);

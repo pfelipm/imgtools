@@ -32,7 +32,7 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 ## ✨ Características principales
 
 *   **Encuadre flexible:** Soporte para ratios 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
-*   **Zoom y pan:** Control total con la rueda del ratón o arrastrando la imagen.
+*   **Zoom y pan:** Control total con la rueda del ratón o arrastrando la imagen. Incluye **bloqueo de ejes** (tecla Mayús) para desplazamientos precisos en horizontal o vertical.
 *   **Efectos pro:** Suavizado de bordes (viñeta) y radio de esquinas para avatares perfectos.
 *   **Motor de exportación:** Escala por ancho, alto o lado largo a resoluciones desde 480p hasta 4K.
 *   **Compresión local:** Todo se procesa en tu navegador. Ni tus fotos suben a un servidor, ni necesitas herramientas externas para reducir el peso.
