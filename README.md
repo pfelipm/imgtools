@@ -36,6 +36,7 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 *   **Efectos pro:** Suavizado de bordes (viñeta) y radio de esquinas para avatares perfectos.
 *   **Motor de exportación:** Escala por ancho, alto o lado largo a resoluciones desde 480p hasta 4K.
 *   **Compresión local:** Todo se procesa en tu navegador. Ni tus fotos suben a un servidor, ni necesitas herramientas externas para reducir el peso.
+*   **Flujo de trabajo optimizado:** Los ajustes se mantienen al cargar nuevas imágenes para facilitar el procesamiento por lotes. Incluye un botón para restablecer todos los parámetros cuando sea necesario.
 *   **Modo oscuro:** Sincronizado con tu sistema, porque sabemos que editas cabeceras a las 2 de la mañana.
 
 ## 🛠️ Instalación y uso

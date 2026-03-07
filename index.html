@@ -263,6 +263,8 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 0 02 2h12a2 2 0 0 02-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Descargar imagen
             </button>
+            
+            <button id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2">Restablecer todos los ajustes</button>
         </section>
 
     </aside>
@@ -284,7 +286,6 @@
             <span class="hidden md:inline italic opacity-70 normal-case">Rueda = Zoom | Arrastra = Encuadre <span class="not-italic font-bold text-indigo-500/80">(Mayús = Bloquear eje)</span></span>
         </div>
         <div id="canvasWrapper" class="flex-1 bg-white/30 dark:bg-black/20 border border-gray-200 dark:border-gray-800 rounded-lg shadow-inner">
-            <!-- Guías visuales Shift -->
             <div id="guideV" class="guide-line guide-v"></div>
             <div id="guideH" class="guide-line guide-h"></div>
             <canvas id="canvas"></canvas>
@@ -360,6 +361,7 @@
         quality: document.getElementById('quality'),
         qualityVal: document.getElementById('qualityVal'),
         downloadBtn: document.getElementById('downloadBtn'),
+        resetAllBtn: document.getElementById('resetAllBtn'),
         canvas: document.getElementById('canvas'),
         origRes: document.getElementById('origRes'),
         origSize: document.getElementById('origSize'),
@@ -404,7 +406,10 @@
                 elements.origSize.textContent = formatBytes(file.size);
                 elements.destSize.textContent = '-';
                 elements.savingsTag.classList.add('hidden');
-                resetState();
+                
+                // IMPORTANTE: Al cargar nueva imagen, solo reiniciamos la vista (zoom/pan)
+                // Mantendremos todos los ajustes de ratio, efectos y exportación
+                resetView(); 
                 updateCanvas();
             };
             img.src = event.target.result;
@@ -413,7 +418,15 @@
         this.value = null;
     });
 
-    function resetState() {
+    // Nueva función que solo reinicia el encuadre
+    function resetView() {
+        state.zoom = 1; state.panX = 0; state.panY = 0;
+        elements.zoom.value = 1;
+        updateUI();
+    }
+
+    // Reinicio total (Botón manual)
+    function factoryReset() {
         state.zoom = 1; state.panX = 0; state.panY = 0;
         elements.zoom.value = 1; elements.aspectRatio.value = 'free';
         elements.customRatioToggle.checked = false; elements.customRatioInputs.classList.add('hidden');
@@ -426,6 +439,7 @@
             elements.balbinoMode.className = "text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm";
         }
         updateUI();
+        updateCanvas();
     }
 
     function updateUI() {
@@ -593,6 +607,8 @@
         }
         const link = document.createElement('a'); link.download = `img_tools_${Date.now()}.${format.split('/')[1]}`; link.href = dataUrl; link.click();
     });
+
+    elements.resetAllBtn.addEventListener('click', factoryReset);
 
     function setTheme(isDark) {
         if (isDark) { document.documentElement.classList.add('dark'); elements.sunIcon.classList.remove('hidden'); elements.moonIcon.classList.add('hidden'); }
