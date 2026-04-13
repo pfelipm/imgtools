@@ -53,7 +53,6 @@
         canvas:hover { cursor: grab; }
         canvas:active { cursor: grabbing; }
         
-        /* Líneas de guía para bloqueo de eje */
         .guide-line {
             position: absolute;
             background-color: #4f46e5;
@@ -75,6 +74,29 @@
             background-size: 200px 100%;
             animation: shine 3s infinite linear;
         }
+        .quick-input {
+            width: 60px;
+            padding: 0 4px;
+            text-align: right;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #4f46e5;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .dark .quick-input {
+            background: #1a1a1a;
+            border-color: #4a5568;
+            color: #818cf8;
+        }
+        /* Clase para deshabilitar secciones */
+        .section-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(0.5);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-darkBg min-h-screen text-gray-800 dark:text-gray-200 flex flex-col">
@@ -82,7 +104,6 @@
 <!-- Encabezado -->
 <header class="bg-white dark:bg-darkPanel shadow-sm border-b dark:border-gray-700 px-6 py-2 flex items-center justify-between">
     <div class="flex items-center gap-4">
-        <!-- Logo SVG incrustado -->
         <svg width="180" height="50" viewBox="0 0 250 80" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto">
             <defs>
                 <linearGradient id="gradLogo" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -101,12 +122,10 @@
         </div>
     </div>
     <div class="flex items-center gap-3">
-        <!-- Toggle Dark Mode -->
         <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-            <svg id="sunIcon" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            <svg id="sunIcon" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
             <svg id="moonIcon" class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
         </button>
-        <!-- Info Button -->
         <button id="infoBtn" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </button>
@@ -114,7 +133,6 @@
 </header>
 
 <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-    <!-- Panel izquierdo: Controles -->
     <aside class="w-full lg:w-80 bg-white dark:bg-darkPanel border-r dark:border-gray-700 overflow-y-auto p-5 space-y-6 flex-shrink-0">
         
         <!-- 1. Cargar imagen -->
@@ -124,11 +142,11 @@
                 Seleccionar archivo
                 <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" class="hidden">
             </label>
-            <p id="fileName" class="text-xs text-gray-500 dark:text-gray-400 truncate text-center">Ningún archivo seleccionado</p>
+            <p id="fileName" class="text-xs text-gray-500 dark:text-gray-400 truncate text-center font-medium">Ningún archivo seleccionado</p>
         </section>
 
         <!-- 2. Encuadre -->
-        <section class="space-y-3">
+        <section id="framingSection" class="space-y-3 section-disabled">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">2. Encuadre</h2>
                 <button id="balbinoMode" disabled class="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm">
@@ -136,25 +154,25 @@
                 </button>
             </div>
             
-            <div id="balbinoNotice" class="hidden text-[10px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-2 rounded border border-green-100 dark:border-green-900/40 animate-pulse">
+            <div id="balbinoNotice" class="hidden text-[10px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-2 rounded border border-green-100 dark:border-green-900/40 animate-pulse font-medium text-center">
                 ¡Configuración GEG Spain aplicada! BalBino estará orgulloso.
             </div>
 
             <div class="space-y-2">
-                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Relación de aspecto</label>
+                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Relación de aspecto</label>
                 <select id="aspectRatio" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:text-gray-400">
                     <option value="free">Libre (original)</option>
-                    <option value="1">1:1 (cuadrado)</option>
-                    <option value="1.3333">4:3 (estándar)</option>
-                    <option value="1.7777">16:9 (panorámico)</option>
-                    <option value="1.6">16:10 (monitor)</option>
-                    <option value="2.3333">21:9 (ultrawide)</option>
+                    <option value="1">1:1 (Cuadrado / Avatar)</option>
+                    <option value="1.3333">4:3 (Estándar)</option>
+                    <option value="1.7777">16:9 (Panorámico)</option>
+                    <option value="1.6">16:10 (Monitor)</option>
+                    <option value="2.3333">21:9 (Ultrawide)</option>
                     <option value="2.1">21:10</option>
                 </select>
                 
                 <div class="flex items-center gap-2 pt-1">
                     <input type="checkbox" id="customRatioToggle" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                    <label for="customRatioToggle" class="text-xs text-gray-700 dark:text-gray-300">Personalizada (ancho:alto)</label>
+                    <label for="customRatioToggle" class="text-xs text-gray-700 dark:text-gray-300 font-medium cursor-pointer">Personalizada (ancho:alto)</label>
                 </div>
                 
                 <div id="customRatioInputs" class="grid grid-cols-2 gap-2 hidden">
@@ -165,7 +183,7 @@
             </div>
 
             <div class="space-y-1">
-                <label class="text-xs text-gray-600 dark:text-gray-400 block">Ajuste rápido</label>
+                <label class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Ajuste rápido</label>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="fitCover" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Llenar</button>
                     <button id="fitContain" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Contener</button>
@@ -173,16 +191,16 @@
             </div>
 
             <div class="space-y-2">
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 font-medium">
                     <span>Zoom</span>
-                    <span id="zoomVal" class="text-indigo-600 dark:text-indigo-400 font-medium">100%</span>
+                    <span id="zoomVal" class="text-indigo-600 dark:text-indigo-400 font-bold">100%</span>
                 </label>
                 <div class="flex items-center gap-2">
-                    <button id="zoomOut" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    <button id="zoomOut" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                     </button>
                     <input type="range" id="zoom" min="0.1" max="5" step="0.05" value="1" class="flex-1 accent-indigo-600">
-                    <button id="zoomIn" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    <button id="zoomIn" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </button>
                 </div>
@@ -190,31 +208,44 @@
         </section>
 
         <!-- 3. Efectos -->
-        <section class="space-y-3">
+        <section id="effectsSection" class="space-y-3 section-disabled">
             <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">3. Efectos</h2>
+            
+            <div class="flex items-center gap-2 pb-1">
+                <input type="checkbox" id="circleCrop" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 transition-colors">
+                <label for="circleCrop" class="text-xs text-gray-700 dark:text-gray-300 font-semibold cursor-pointer">Recorte circular / elíptico</label>
+            </div>
+
             <div>
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
                     <span>Suavizado de borde</span>
-                    <span id="featherVal" class="text-indigo-600 dark:text-indigo-400 font-medium">0px</span>
+                    <span class="flex items-center gap-1">
+                        <span id="featherLabel" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
+                        <input type="number" id="featherInput" class="hidden quick-input" min="0" step="1">
+                    </span>
                 </label>
                 <input type="range" id="feather" min="0" max="100" value="0" class="w-full accent-indigo-600">
             </div>
-            <div>
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+            
+            <div id="radiusControl">
+                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
                     <span>Radio de esquinas</span>
-                    <span id="radiusVal" class="text-indigo-600 dark:text-indigo-400 font-medium">0px</span>
+                    <span class="flex items-center gap-1">
+                        <span id="radiusLabel" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
+                        <input type="number" id="radiusInput" class="hidden quick-input" min="0" step="1">
+                    </span>
                 </label>
-                <input type="range" id="radius" min="0" max="500" value="0" class="w-full accent-indigo-600">
+                <input type="range" id="radius" min="0" max="100" value="0" class="w-full accent-indigo-600">
             </div>
         </section>
 
         <!-- 4. Exportación -->
-        <section class="space-y-3">
+        <section id="exportSection" class="space-y-3 section-disabled">
             <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">4. Exportación</h2>
             <div class="space-y-2">
-                <label class="text-xs text-gray-600 dark:text-gray-400 block">Escalar por</label>
+                <label class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Escalar por</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <select id="exportAnchor" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
+                    <select id="exportAnchor" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="height">Alto</option>
                         <option value="width">Ancho</option>
                         <option value="longest">Lado largo</option>
@@ -223,18 +254,18 @@
                     <input type="number" id="exportSize" value="1080" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500 disabled:bg-gray-50 dark:disabled:bg-gray-900">
                 </div>
                 <div id="quickSizes" class="grid grid-cols-5 gap-1">
-                    <button data-size="480" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">480</button>
-                    <button data-size="720" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">720</button>
-                    <button data-size="1080" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">1080</button>
-                    <button data-size="1440" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">2K</button>
-                    <button data-size="2160" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300">4K</button>
+                    <button data-size="480" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">480</button>
+                    <button data-size="720" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">720</button>
+                    <button data-size="1080" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">1080</button>
+                    <button data-size="1440" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">2K</button>
+                    <button data-size="2160" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">4K</button>
                 </div>
                 <p id="exportError" class="text-[10px] text-red-500 hidden font-medium text-center mt-1">Introduzca un tamaño válido</p>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Formato</label>
+                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Formato</label>
                     <select id="outFormat" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="image/png">PNG</option>
                         <option value="image/webp">WEBP</option>
@@ -242,7 +273,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Escalado</label>
+                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Escalado</label>
                     <select id="scalingMethod" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="high">Suave (alta)</option>
                         <option value="medium">Suave (media)</option>
@@ -252,25 +283,22 @@
             </div>
 
             <div>
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
                     <span>Calidad <span class="opacity-50 font-normal">(peso vs nitidez)</span></span>
-                    <span id="qualityVal" class="text-indigo-600 dark:text-indigo-400 font-medium">80%</span>
+                    <span id="qualityVal" class="text-indigo-600 dark:text-indigo-400 font-bold">80%</span>
                 </label>
                 <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
             </div>
 
-            <button id="downloadBtn" disabled class="mt-4 w-full bg-indigo-600 dark:bg-indigo-500 text-white font-medium py-3 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
+            <button id="downloadBtn" disabled class="mt-4 w-full bg-indigo-600 dark:bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 0 02 2h12a2 2 0 0 02-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Descargar imagen
             </button>
-            
-            <button id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2">Restablecer todos los ajustes</button>
+            <button id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2 font-medium">Restablecer todos los ajustes</button>
         </section>
-
     </aside>
 
-    <!-- Área principal: Canvas -->
-    <section class="flex-1 canvas-bg relative p-4 lg:p-8 flex flex-col overflow-hidden">
+    <section class="flex-1 canvas-bg relative p-4 lg:p-8 flex flex-col overflow-hidden text-gray-800 dark:text-gray-200">
         <div class="mb-3 flex flex-wrap justify-between items-center gap-3 text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
             <div class="flex flex-wrap gap-3">
                 <div id="origInfo" class="bg-white/80 dark:bg-gray-800/80 px-2 py-1 rounded shadow-sm flex gap-2 border border-transparent text-gray-700 dark:text-gray-300">
@@ -280,7 +308,7 @@
                 <div id="destInfo" class="bg-indigo-50/80 dark:bg-indigo-900/30 px-2 py-1 rounded shadow-sm text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800 flex gap-2 items-center">
                     <span id="destRes">Salida: -</span>
                     <span id="destSize" class="opacity-60 border-l border-indigo-200 dark:border-indigo-700 pl-2">-</span>
-                    <span id="savingsTag" class="hidden ml-1 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold">-0%</span>
+                    <span id="savingsTag" class="hidden ml-1 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm">-0%</span>
                 </div>
             </div>
             <span class="hidden md:inline italic opacity-70 normal-case">Rueda = Zoom | Arrastra = Encuadre <span class="not-italic font-bold text-indigo-500/80">(Mayús = Bloquear eje)</span></span>
@@ -295,7 +323,7 @@
 
 <!-- Modal de Información -->
 <div id="infoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm text-gray-800 dark:text-gray-200">
-    <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-10 relative overflow-hidden">
+    <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-10 relative overflow-hidden text-gray-800 dark:text-gray-200">
         <button id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -305,8 +333,8 @@
             </div>
             <div class="flex-1">
                 <header>
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">ImgTools</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Actualizado: 6 de marzo de 2026</p>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white font-bold">ImgTools</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-tight">Actualizado: 13 de abril de 2026</p>
                 </header>
                 <div class="mt-8 flex flex-col-reverse lg:flex-row gap-8 items-center lg:items-start leading-relaxed text-sm text-gray-600 dark:text-gray-300">
                     <div class="flex-1 space-y-5">
@@ -334,6 +362,9 @@
     const elements = {
         fileInput: document.getElementById('fileInput'),
         fileName: document.getElementById('fileName'),
+        framingSection: document.getElementById('framingSection'),
+        effectsSection: document.getElementById('effectsSection'),
+        exportSection: document.getElementById('exportSection'),
         aspectRatio: document.getElementById('aspectRatio'),
         customRatioToggle: document.getElementById('customRatioToggle'),
         customRatioInputs: document.getElementById('customRatioInputs'),
@@ -348,10 +379,14 @@
         zoomOut: document.getElementById('zoomOut'),
         balbinoMode: document.getElementById('balbinoMode'),
         balbinoNotice: document.getElementById('balbinoNotice'),
+        circleCrop: document.getElementById('circleCrop'),
         feather: document.getElementById('feather'),
-        featherVal: document.getElementById('featherVal'),
+        featherLabel: document.getElementById('featherLabel'),
+        featherInput: document.getElementById('featherInput'),
         radius: document.getElementById('radius'),
-        radiusVal: document.getElementById('radiusVal'),
+        radiusLabel: document.getElementById('radiusLabel'),
+        radiusInput: document.getElementById('radiusInput'),
+        radiusControl: document.getElementById('radiusControl'),
         exportAnchor: document.getElementById('exportAnchor'),
         exportSize: document.getElementById('exportSize'),
         quickSizeBtns: document.querySelectorAll('#quickSizes button'),
@@ -402,13 +437,14 @@
                 elements.downloadBtn.disabled = false;
                 elements.balbinoMode.disabled = false;
                 elements.balbinoMode.className = "text-[10px] bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-bold px-2 py-1 rounded-full border border-amber-200 dark:border-amber-800 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors flex items-center gap-1 shadow-sm";
+                
+                // Activar secciones de control
+                [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.remove('section-disabled'));
+                
                 elements.origRes.textContent = `Origen: ${img.width} x ${img.height} px`;
                 elements.origSize.textContent = formatBytes(file.size);
                 elements.destSize.textContent = '-';
                 elements.savingsTag.classList.add('hidden');
-                
-                // IMPORTANTE: Al cargar nueva imagen, solo reiniciamos la vista (zoom/pan)
-                // Mantendremos todos los ajustes de ratio, efectos y exportación
                 resetView(); 
                 updateCanvas();
             };
@@ -418,90 +454,136 @@
         this.value = null;
     });
 
-    // Nueva función que solo reinicia el encuadre
     function resetView() {
         state.zoom = 1; state.panX = 0; state.panY = 0;
         elements.zoom.value = 1;
         updateUI();
     }
 
-    // Reinicio total (Botón manual)
     function factoryReset() {
         state.zoom = 1; state.panX = 0; state.panY = 0;
         elements.zoom.value = 1; elements.aspectRatio.value = 'free';
         elements.customRatioToggle.checked = false; elements.customRatioInputs.classList.add('hidden');
-        elements.aspectRatio.disabled = false; elements.feather.value = 0; elements.radius.value = 0;
+        elements.aspectRatio.disabled = false; 
+        elements.circleCrop.checked = false;
+        elements.feather.value = 0; elements.radius.value = 0;
         elements.exportAnchor.value = 'height'; elements.exportSize.value = 1080;
         elements.exportSize.disabled = false; elements.outFormat.value = 'image/png';
         elements.scalingMethod.value = 'high'; elements.quality.value = 0.8;
+        
         if (!image) {
             elements.balbinoMode.disabled = true;
             elements.balbinoMode.className = "text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm";
+            [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.add('section-disabled'));
         }
         updateUI();
         updateCanvas();
     }
 
+    function calculateDimensions() {
+        if (!image) return { outWidth: 0, outHeight: 0 };
+        let ratioVal = elements.aspectRatio.value;
+        if (elements.customRatioToggle.checked) {
+            const cw = parseFloat(elements.customW.value), ch = parseFloat(elements.customH.value);
+            if (cw > 0 && ch > 0) ratioVal = cw / ch;
+        }
+        const currentRatio = (ratioVal === 'free') ? (image.width / image.height) : parseFloat(ratioVal);
+        const anchor = elements.exportAnchor.value, targetSize = parseFloat(elements.exportSize.value);
+        let outWidth, outHeight;
+
+        if (anchor === 'original') { outHeight = image.height; outWidth = outHeight * currentRatio; }
+        else if (anchor === 'height') { outHeight = targetSize; outWidth = outHeight * currentRatio; }
+        else if (anchor === 'width') { outWidth = targetSize; outHeight = outWidth / currentRatio; }
+        else if (anchor === 'longest') { if (currentRatio >= 1) { outWidth = targetSize; outHeight = outWidth / currentRatio; } else { outHeight = targetSize; outWidth = outHeight * currentRatio; } }
+        return { outWidth, outHeight };
+    }
+
     function updateUI() {
+        if (!image) return;
+
+        const { outWidth, outHeight } = calculateDimensions();
+        const minDim = Math.min(outWidth, outHeight);
+
+        const maxRadius = Math.round(minDim / 2);
+        const maxFeather = Math.round(minDim / 5);
+        
+        elements.radius.max = maxRadius;
+        elements.radiusInput.max = maxRadius;
+        elements.feather.max = maxFeather;
+        elements.featherInput.max = maxFeather;
+
+        if (parseInt(elements.radius.value) > maxRadius) elements.radius.value = maxRadius;
+        if (parseInt(elements.feather.value) > maxFeather) elements.feather.value = maxFeather;
+
         elements.zoomVal.textContent = Math.round(state.zoom * 100) + '%';
-        elements.featherVal.textContent = elements.feather.value + 'px';
-        elements.radiusVal.textContent = elements.radius.value + 'px';
+        elements.featherLabel.textContent = elements.feather.value + 'px';
+        elements.radiusLabel.textContent = elements.radius.value + 'px';
         elements.qualityVal.textContent = Math.round(elements.quality.value * 100) + '%';
         elements.exportSize.disabled = elements.exportAnchor.value === 'original';
+        
+        const isCircle = elements.circleCrop.checked;
+        elements.radiusControl.style.opacity = isCircle ? '0.3' : '1';
+        elements.radius.disabled = isCircle;
+
         const isPng = elements.outFormat.value === 'image/png';
         elements.quality.parentElement.style.opacity = isPng ? '0.5' : '1';
         elements.quality.disabled = isPng;
     }
 
+    function drawPath(c, w, h, r, isCircle) {
+        c.beginPath();
+        if (isCircle) {
+            c.ellipse(w/2, h/2, w/2, h/2, 0, 0, 2 * Math.PI);
+        } else {
+            const clampedR = Math.min(r, Math.min(w, h) / 2);
+            c.moveTo(clampedR, 0);
+            c.lineTo(w - clampedR, 0);
+            c.quadraticCurveTo(w, 0, w, clampedR);
+            c.lineTo(w, h - clampedR);
+            c.quadraticCurveTo(w, h, w - clampedR, h);
+            c.lineTo(clampedR, h);
+            c.quadraticCurveTo(0, h, 0, h - clampedR);
+            c.lineTo(0, clampedR);
+            c.quadraticCurveTo(0, 0, clampedR, 0);
+        }
+        c.closePath();
+    }
+
     function updateCanvas() {
         if (!image) return;
-        let ratioVal = elements.aspectRatio.value;
+        const { outWidth, outHeight } = calculateDimensions();
+        if (outWidth <= 0 || outHeight <= 0) return;
+
         const feather = parseInt(elements.feather.value), borderRadius = parseInt(elements.radius.value);
-        let isCustomValid = true;
-        if (elements.customRatioToggle.checked) {
-            const cw = parseFloat(elements.customW.value), ch = parseFloat(elements.customH.value);
-            if (cw > 0 && ch > 0) { ratioVal = cw / ch; elements.customW.classList.remove('border-red-500'); elements.customH.classList.remove('border-red-500'); elements.ratioError.classList.add('hidden'); }
-            else { isCustomValid = false; elements.customW.classList.add('border-red-500'); elements.customH.classList.add('border-red-500'); elements.ratioError.classList.remove('hidden'); }
-        }
-        const anchor = elements.exportAnchor.value, targetSize = parseFloat(elements.exportSize.value);
-        let isExportValid = true;
-        if (anchor !== 'original') {
-            if (isNaN(targetSize) || targetSize <= 0) { isExportValid = false; elements.exportSize.classList.add('border-red-500'); elements.exportError.classList.remove('hidden'); }
-            else { elements.exportSize.classList.remove('border-red-500'); elements.exportError.classList.add('hidden'); }
-        }
-        elements.downloadBtn.disabled = !image || !isCustomValid || !isExportValid;
-        if (!isCustomValid || !isExportValid) return;
-        let outWidth, outHeight;
-        const currentRatio = (ratioVal === 'free') ? (image.width / image.height) : parseFloat(ratioVal);
-        if (anchor === 'original') { outHeight = image.height; outWidth = outHeight * currentRatio; }
-        else if (anchor === 'height') { outHeight = targetSize; outWidth = outHeight * currentRatio; }
-        else if (anchor === 'width') { outWidth = targetSize; outHeight = outWidth / currentRatio; }
-        else if (anchor === 'longest') { if (currentRatio >= 1) { outWidth = targetSize; outHeight = outWidth / currentRatio; } else { outHeight = targetSize; outWidth = outHeight * currentRatio; } }
+        const isCircle = elements.circleCrop.checked;
+
         elements.canvas.width = outWidth; elements.canvas.height = outHeight;
         const wrapperRect = elements.canvasWrapper.getBoundingClientRect();
         const displayScale = Math.min((wrapperRect.width - 40) / outWidth, (wrapperRect.height - 40) / outHeight, 1);
         elements.canvas.style.width = `${outWidth * displayScale}px`; elements.canvas.style.height = `${outHeight * displayScale}px`;
         elements.destRes.textContent = `Salida: ${Math.round(outWidth)} x ${Math.round(outHeight)} px`;
+        
         ctx.clearRect(0, 0, outWidth, outHeight);
         const scaling = elements.scalingMethod.value;
         if (scaling === 'pixel') { ctx.imageSmoothingEnabled = false; } else { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = scaling; }
+        
         const scaleX = outWidth / image.width, scaleY = outHeight / image.height, baseScale = Math.max(scaleX, scaleY);
         const imgDrawWidth = image.width * baseScale * state.zoom, imgDrawHeight = image.height * baseScale * state.zoom;
         const startX = (outWidth - imgDrawWidth) / 2 + state.panX, startY = (outHeight - imgDrawHeight) / 2 + state.panY;
+        
         ctx.save();
-        if (borderRadius > 0) {
-            ctx.beginPath(); ctx.moveTo(borderRadius, 0); ctx.lineTo(outWidth - borderRadius, 0); ctx.quadraticCurveTo(outWidth, 0, outWidth, borderRadius);
-            ctx.lineTo(outWidth, outHeight - borderRadius); ctx.quadraticCurveTo(outWidth, outHeight, outWidth - borderRadius, outHeight);
-            ctx.lineTo(borderRadius, outHeight); ctx.quadraticCurveTo(0, outHeight, 0, outHeight - borderRadius);
-            ctx.lineTo(0, borderRadius); ctx.quadraticCurveTo(0, 0, borderRadius, 0); ctx.closePath(); ctx.clip();
-        }
+        drawPath(ctx, outWidth, outHeight, borderRadius, isCircle);
+        ctx.clip();
         ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
         ctx.restore();
+
         if (feather > 0) {
+            ctx.save();
             ctx.globalCompositeOperation = 'destination-in';
-            const gradient = ctx.createRadialGradient(outWidth/2, outHeight/2, Math.max(0, Math.min(outWidth, outHeight)/2 - feather*3), outWidth/2, outHeight/2, Math.max(outWidth, outHeight)/2);
-            gradient.addColorStop(0, 'rgba(0,0,0,1)'); gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = gradient; ctx.fillRect(0, 0, outWidth, outHeight); ctx.globalCompositeOperation = 'source-over';
+            ctx.filter = `blur(${feather}px)`;
+            drawPath(ctx, outWidth, outHeight, borderRadius, isCircle);
+            ctx.fill();
+            ctx.restore();
         }
     }
 
@@ -517,7 +599,6 @@
         elements.guideV.style.display = 'block';
         elements.guideH.style.top = (rect.top - wrapperRect.top + rect.height / 2) + 'px';
         elements.guideH.style.display = 'block';
-        
         if (state.lockAxis === 'x') {
             elements.guideH.classList.add('guide-active'); elements.guideV.classList.remove('guide-active');
             elements.canvasWrapper.style.cursor = 'ew-resize';
@@ -530,7 +611,42 @@
         }
     }
 
-    [elements.aspectRatio, elements.exportAnchor, elements.exportSize, elements.scalingMethod, elements.feather, elements.radius, elements.customW, elements.customH].forEach(el => el.addEventListener('input', () => { updateUI(); updateCanvas(); }));
+    function setupQuickInput(labelEl, inputEl, sliderEl) {
+        labelEl.addEventListener('click', () => {
+            labelEl.classList.add('hidden');
+            inputEl.classList.remove('hidden');
+            inputEl.value = sliderEl.value;
+            inputEl.focus();
+        });
+        inputEl.addEventListener('input', () => {
+            let val = parseInt(inputEl.value);
+            if (isNaN(val)) return;
+            val = Math.max(0, Math.min(sliderEl.max, val));
+            sliderEl.value = val;
+            updateUI(); updateCanvas();
+        });
+        const commit = () => {
+            inputEl.classList.add('hidden');
+            labelEl.classList.remove('hidden');
+            updateUI(); updateCanvas();
+        };
+        inputEl.addEventListener('blur', commit);
+        inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
+    }
+
+    setupQuickInput(elements.featherLabel, elements.featherInput, elements.feather);
+    setupQuickInput(elements.radiusLabel, elements.radiusInput, elements.radius);
+
+    [elements.feather, elements.radius].forEach(slider => {
+        slider.addEventListener('input', () => {
+            const isFeather = slider.id === 'feather';
+            const input = isFeather ? elements.featherInput : elements.radiusInput;
+            input.value = slider.value;
+            updateUI(); updateCanvas();
+        });
+    });
+
+    [elements.aspectRatio, elements.exportAnchor, elements.exportSize, elements.scalingMethod, elements.customW, elements.customH, elements.circleCrop].forEach(el => el.addEventListener('input', () => { updateUI(); updateCanvas(); }));
     elements.customRatioToggle.addEventListener('change', (e) => { elements.aspectRatio.disabled = e.target.checked; elements.customRatioInputs.classList.toggle('hidden', !e.target.checked); updateCanvas(); });
     elements.zoom.addEventListener('input', (e) => { state.zoom = parseFloat(e.target.value); updateUI(); updateCanvas(); });
     elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, state.zoom + 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
@@ -539,10 +655,7 @@
     
     elements.fitContain.addEventListener('click', () => {
         if (!image) return;
-        let ratioVal = elements.aspectRatio.value;
-        if (elements.customRatioToggle.checked) { const cw = parseFloat(elements.customW.value), ch = parseFloat(elements.customH.value); if (cw > 0 && ch > 0) ratioVal = cw / ch; }
-        const currentRatio = (ratioVal === 'free') ? (image.width / image.height) : parseFloat(ratioVal);
-        const refSize = 1000, outWidth = currentRatio >= 1 ? refSize : refSize * currentRatio, outHeight = currentRatio >= 1 ? refSize / currentRatio : refSize;
+        const { outWidth, outHeight } = calculateDimensions();
         const scaleX = outWidth / image.width, scaleY = outHeight / image.height;
         state.zoom = Math.min(scaleX, scaleY) / Math.max(scaleX, scaleY);
         state.panX = 0; state.panY = 0; elements.zoom.value = state.zoom; updateUI(); updateCanvas();

@@ -3,18 +3,18 @@
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Actualizado](https://img.shields.io/badge/Actualizado-6_de_marzo_de_2026-indigo)
+![Actualizado](https://img.shields.io/badge/Actualizado-13_de_abril_de_2026-indigo)
 
 ![ImgTools Interface](assets/imgtools-interface.png)
 
 ## 🎯 ¿Por qué existe ImgTools?
 
-Si eres parte del equipo de coordinación de **GEG Spain**, conoces el ritual. BalBino, con todo el amor del mundo y su infinita paciencia manteniendo nuestra web en WordPress, nos ha impuesto un flujo de trabajo digno de las doce pruebas de Hércules:
+Si eres parte del equipo de coordinación de **GEG Spain**, conoces el ritual. BalBino, con todo el amor del mundo y su infinita paciencia manteniendo nuestra web en [transformacioneducativa.es](https://transformacioneducativa.es), nos ha impuesto un flujo de trabajo digno de las doce pruebas de Hércules:
 
 1.  Abrir una presentación de Google configurada a 1920x1080.
 2.  Subir tu imagen, ajustarla a la diapo, rezar para que el encuadre sea 16:9.
 3.  Descargar la diapo como imagen.
-4.  Pasar por [TinyPNG](https://tinypng.com/) para que el archivo no pese más que nuestra conciencia.
+4.  Pasar por herramientas externas para que el archivo no pese más que nuestra conciencia.
 5.  Subir a WordPress.
 
 **¡Basta!** ImgTools nace como una "protesta-broma" cariñosa para automatizar este proceso. Queremos mucho a BalBino, pero queremos más nuestro tiempo. Con esta herramienta, lo que antes llevaba 5 minutos ahora se hace en 5 segundos.
@@ -32,16 +32,21 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 ## ✨ Características principales
 
 *   **Encuadre flexible:** Soporte para ratios 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
-*   **Zoom y pan:** Control total con la rueda del ratón o arrastrando la imagen. Incluye **bloqueo de ejes** (tecla Mayús) para desplazamientos precisos en horizontal o vertical.
-*   **Efectos pro:** Suavizado de bordes (viñeta) y radio de esquinas para avatares perfectos.
-*   **Motor de exportación:** Escala por ancho, alto o lado largo a resoluciones desde 480p hasta 4K.
-*   **Compresión local:** Todo se procesa en tu navegador. Ni tus fotos suben a un servidor, ni necesitas herramientas externas para reducir el peso.
-*   **Flujo de trabajo optimizado:** Los ajustes se mantienen al cargar nuevas imágenes para facilitar el procesamiento por lotes. Incluye un botón para restablecer todos los parámetros cuando sea necesario.
-*   **Modo oscuro:** Sincronizado con tu sistema, porque sabemos que editas cabeceras a las 2 de la mañana.
+*   **Zoom y pan de precisión:** Control total con la rueda del ratón o arrastrando la imagen. Incluye **bloqueo de ejes** (tecla Mayús) para desplazamientos milimétricos.
+*   **Efectos avanzados:**
+    *   **Recorte circular/elíptico:** Máscaras geométricas perfectas para avatares o creatividades.
+    *   **Suavizado perimetral (Feather):** Desenfoque de bordes que sigue la silueta de la imagen (rectangular o curva).
+    *   **Radio de esquinas:** Redondeo profesional ajustable.
+*   **Ajuste fino numérico:** Haz clic en cualquier valor para introducir los píxeles exactos mediante el teclado.
+*   **Límites inteligentes:** Los efectos se escalan proporcionalmente a la resolución de salida. ¡Un radio de 20px se verá igual de bien en SD que en 4K!
+*   **Motor de exportación:** Escala por ancho, alto o lado largo. Control total sobre el método de suavizado (bicúbico o píxel-art).
+*   **Compresión y peso:** Cálculo del tamaño en disco y del porcentaje de ahorro en tiempo real tras cada descarga.
+*   **Flujo de trabajo optimizado:** Los ajustes se mantienen al cargar nuevas imágenes para facilitar el procesamiento por lotes.
+*   **Modo oscuro:** Sincronizado automáticamente con tu sistema operativo.
 
 ## 🛠️ Instalación y uso
 
-ImgTools es una **Single Page Application (SPA)** autocontenida. Tienes dos formas de usarla:
+ImgTools es una **Single Page Application (SPA)** autocontenida y 100% privada (todo el proceso ocurre en tu navegador local). Tienes dos formas de usarla:
 
 1.  **En línea:** Accede directamente a la herramienta en **[imgtools.pablofelip.online](https://imgtools.pablofelip.online)**.
 2.  **Local:** Descarga el archivo `index.html` de este repositorio y ábrelo en cualquier navegador moderno. No necesita instalación ni dependencias.
