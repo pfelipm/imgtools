@@ -38,7 +38,7 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
     *   **Suavizado perimetral (Feather):** Desenfoque de bordes que sigue la silueta de la imagen (rectangular o curva).
     *   **Radio de esquinas:** Redondeo profesional ajustable.
 *   **Ajuste fino numérico:** Haz clic en cualquier valor para introducir los píxeles exactos mediante el teclado.
-*   **Límites inteligentes:** Los efectos se escalan proporcionalmente a la resolución de salida. ¡Un radio de 20px se verá igual de bien en SD que en 4K!
+*   **Límites inteligentes:** Los límites de los efectos escalan proporcionalmente a la resolución de la imagen de la salida.
 *   **Motor de exportación:** Escala por ancho, alto o lado largo. Control total sobre el método de suavizado (bicúbico o píxel-art).
 *   **Compresión y peso:** Cálculo del tamaño en disco y del porcentaje de ahorro en tiempo real tras cada descarga.
 *   **Flujo de trabajo optimizado:** Los ajustes se mantienen al cargar nuevas imágenes para facilitar el procesamiento por lotes.
