@@ -5,7 +5,9 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Actualizado](https://img.shields.io/badge/Actualizado-1_de_mayo_de_2026-indigo)
 
-![ImgTools Interface](assets/imgtools-interface-01-2026-05-01.png)
+<p align="center">
+  <img src="assets/imgtools-interface-01-2026-05-01.png" alt="ImgTools Interface">
+</p>
 
 ## 🎯 ¿Por qué existe ImgTools?
 
@@ -33,7 +35,9 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 
 Esta innovadora función permite cambiar la relación de aspecto de una imagen (por ejemplo, de 1:1 a 16:9) sin necesidad de recortar el contenido ni sufrir las consecuencias de un estiramiento uniforme (que achata o alarga a las personas).
 
-![Proceso ANL](assets/imgtools-interface-02-2026-05-01.png)
+<p align="center">
+  <img src="assets/imgtools-interface-02-2026-05-01.png" alt="Proceso ANL">
+</p>
 
 **¿Cómo funciona internamente?**
 El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. El algoritmo calcula automáticamente qué eje debe adaptarse y aplica una función de escala no lineal:
@@ -49,7 +53,9 @@ El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. El algoritmo
 *   **Bloqueo de ejes:** Mantén presionada la tecla **Mayús** para desplazar la imagen solo en horizontal o vertical.
 *   **Adaptación Inteligente:** El botón **Adaptar (no lineal)** rellena el lienzo automáticamente protegiendo el sujeto.
 
-![Ajustes de Encuadre](assets/ajustes-encuadre-2026-05-01.png)
+<p align="center">
+  <img src="assets/ajustes-encuadre-2026-05-01.png" alt="Ajustes de Encuadre">
+</p>
 
 ### 2. Efectos y Calidad
 *   **Recorte circular/elíptico:** Máscaras geométricas perfectas para avatares.
@@ -57,14 +63,18 @@ El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. El algoritmo
 *   **Radio de esquinas:** Redondeo profesional ajustable.
 *   **Límites inteligentes:** Los límites de los efectos escalan proporcionalmente a la resolución de salida.
 
-![Ajustes de Efectos](assets/ajustes-efectos-2026-05-01.png)
+<p align="center">
+  <img src="assets/ajustes-efectos-2026-05-01.png" alt="Ajustes de Efectos">
+</p>
 
 ### 3. Exportación y Rendimiento
 *   **Motor de escalado:** Control total sobre el método de suavizado (bicúbico o píxel-art).
 *   **Información en tiempo real:** Compara el tamaño del archivo original con el de salida y visualiza el ahorro de espacio.
 *   **Ajuste fino numérico:** Haz clic en cualquier valor para introducir los píxeles exactos mediante el teclado.
 
-![Info de Salida](assets/info-origen-salida-2026-05-01.png)
+<p align="center">
+  <img src="assets/info-origen-salida-2026-05-01.png" alt="Info de Salida">
+</p>
 
 ## 🛠️ Instalación y uso
 
