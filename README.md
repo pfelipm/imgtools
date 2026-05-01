@@ -36,9 +36,7 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 Esta innovadora función permite cambiar la relación de aspecto de una imagen (por ejemplo, de 1:1 a 16:9) sin necesidad de recortar el contenido ni sufrir las consecuencias de un estiramiento uniforme (que achata o alarga a las personas).
 
 <p align="center">
-  <video src="https://raw.githubusercontent.com/pfelipm/imgtools/main/assets/ajuste-inteligente.mp4" width="100%" controls>
-    Tu navegador no soporta el tag de video. <a href="https://raw.githubusercontent.com/pfelipm/imgtools/main/assets/ajuste-inteligente.mp4">Descarga el vídeo aquí</a>.
-  </video>
+  <img src="https://raw.githubusercontent.com/pfelipm/imgtools/main/assets/ajuste-inteligente.mp4" alt="Demostración ANL">
   <br>
   <em>Demostración del algoritmo de Adaptación No Lineal (ANL) en acción.</em>
 </p>
