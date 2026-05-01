@@ -188,6 +188,49 @@
                     <button id="fitCover" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Llenar</button>
                     <button id="fitContain" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Contener</button>
                 </div>
+                <button id="fitENL" class="mt-2 w-full text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center justify-center gap-1">
+                    Adaptar (no lineal)
+                </button>
+
+                <!-- Panel de ajustes ANL -->
+                <div id="enlSettings" class="hidden mt-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 space-y-3">
+                    <div class="flex items-center justify-between text-[10px] text-gray-500 uppercase font-bold tracking-tight">
+                        <span>Ajustes ANL</span>
+                        <span id="enlAxisLabel" class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/50">Adaptando: Ancho</span>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Porcentaje central que mantiene la proporción original. Al 0% la distorsión es total desde el centro; al 100% el escalado es lineal (estiramiento uniforme).">
+                            <span>Zona segura</span>
+                            <span id="enlSafeVal" class="text-indigo-600 dark:text-indigo-400 font-bold">30%</span>
+                        </label>
+                        <input type="range" id="enlSafe" min="0" max="100" value="30" class="w-full h-1.5 accent-indigo-600">
+                    </div>
+
+                    <div id="enlBiasXContainer" class="space-y-1">
+                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Ajusta la posición horizontal de la zona segura">
+                            <span>Desplazamiento (An)</span>
+                            <span id="enlBiasXVal" class="text-indigo-600 dark:text-indigo-400 font-bold">0%</span>
+                        </label>
+                        <input type="range" id="enlBiasX" min="-50" max="50" value="0" class="w-full h-1.5 accent-indigo-600">
+                    </div>
+
+                    <div id="enlBiasYContainer" class="hidden space-y-1">
+                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Ajusta la posición vertical de la zona segura">
+                            <span>Desplazamiento (Al)</span>
+                            <span id="enlBiasYVal" class="text-indigo-600 dark:text-indigo-400 font-bold">0%</span>
+                        </label>
+                        <input type="range" id="enlBiasY" min="-50" max="50" value="0" class="w-full h-1.5 accent-indigo-600">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Controla la curvatura del estiramiento. Un valor bajo reparte la distorsión; un valor alto la concentra en los extremos.">
+                            <span>Transición</span>
+                            <span id="enlPowerVal" class="text-indigo-600 dark:text-indigo-400 font-bold">2.0</span>
+                        </label>
+                        <input type="range" id="enlPower" min="1" max="4" step="0.1" value="2" class="w-full h-1.5 accent-indigo-600">
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-2">
@@ -334,7 +377,7 @@
             <div class="flex-1">
                 <header>
                     <h3 class="text-3xl font-bold text-gray-900 dark:text-white font-bold">ImgTools</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-tight">Actualizado: 13 de abril de 2026</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-tight">Actualizado: 1 de mayo de 2026</p>
                 </header>
                 <div class="mt-8 flex flex-col-reverse lg:flex-row gap-8 items-center lg:items-start leading-relaxed text-sm text-gray-600 dark:text-gray-300">
                     <div class="flex-1 space-y-5">
@@ -373,6 +416,19 @@
         ratioError: document.getElementById('ratioError'),
         fitCover: document.getElementById('fitCover'),
         fitContain: document.getElementById('fitContain'),
+        fitENL: document.getElementById('fitENL'),
+        enlSettings: document.getElementById('enlSettings'),
+        enlAxisLabel: document.getElementById('enlAxisLabel'),
+        enlSafe: document.getElementById('enlSafe'),
+        enlSafeVal: document.getElementById('enlSafeVal'),
+        enlBiasX: document.getElementById('enlBiasX'),
+        enlBiasXVal: document.getElementById('enlBiasXVal'),
+        enlBiasXContainer: document.getElementById('enlBiasXContainer'),
+        enlBiasY: document.getElementById('enlBiasY'),
+        enlBiasYVal: document.getElementById('enlBiasYVal'),
+        enlBiasYContainer: document.getElementById('enlBiasYContainer'),
+        enlPower: document.getElementById('enlPower'),
+        enlPowerVal: document.getElementById('enlPowerVal'),
         zoom: document.getElementById('zoom'),
         zoomVal: document.getElementById('zoomVal'),
         zoomIn: document.getElementById('zoomIn'),
@@ -416,7 +472,12 @@
 
     const ctx = elements.canvas.getContext('2d');
     let image = null, originalFile = null;
-    let state = { zoom: 1, panX: 0, panY: 0, isDragging: false, lastX: 0, lastY: 0, lockAxis: null };
+    let state = { 
+        zoom: 1, panX: 0, panY: 0, 
+        isDragging: false, lastX: 0, lastY: 0, lockAxis: null,
+        enlActive: false,
+        enlAxis: 'x' // 'x' o 'y'
+    };
 
     function formatBytes(bytes, decimals = 1) {
         if (bytes === 0) return '0 B';
@@ -445,7 +506,9 @@
                 elements.origSize.textContent = formatBytes(file.size);
                 elements.destSize.textContent = '-';
                 elements.savingsTag.classList.add('hidden');
-                resetView(); 
+                
+                // Resetear todo al cargar nueva imagen (encuadre, efectos, etc)
+                factoryReset();
                 updateCanvas();
             };
             img.src = event.target.result;
@@ -462,6 +525,12 @@
 
     function factoryReset() {
         state.zoom = 1; state.panX = 0; state.panY = 0;
+        state.enlActive = false;
+        state.enlAxis = 'x';
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        elements.enlSettings.classList.add('hidden');
+        elements.enlSafe.value = 30; elements.enlBiasX.value = 0; elements.enlBiasY.value = 0;
+        elements.enlPower.value = 2.0;
         elements.zoom.value = 1; elements.aspectRatio.value = 'free';
         elements.customRatioToggle.checked = false; elements.customRatioInputs.classList.add('hidden');
         elements.aspectRatio.disabled = false; 
@@ -498,6 +567,70 @@
         return { outWidth, outHeight };
     }
 
+    function getNLSSlices(numSlices, originalSize, targetSize, safeZonePct, biasPct, desiredScale, power) {
+        const safeZone = safeZonePct / 100;
+        const bias = (biasPct / 100) * (1 - safeZone);
+        const sliceOrigSize = originalSize / numSlices;
+        const center = 0.5 + bias;
+        const halfSafe = safeZone / 2;
+
+        let sumWeightedDist = 0;
+        const dists = new Array(numSlices);
+        for (let i = 0; i < numSlices; i++) {
+            const x = (i + 0.5) / numSlices;
+            const dist = Math.abs(x - center) > halfSafe ? Math.abs(x - center) - halfSafe : 0;
+            dists[i] = Math.pow(dist, power); 
+            sumWeightedDist += dists[i] * sliceOrigSize;
+        }
+
+        // Si Safe Zone 100%, hacemos un escalado lineal uniforme
+        let K, baseScale;
+        if (safeZone >= 0.999) {
+            K = 0;
+            baseScale = targetSize / originalSize;
+        } else {
+            K = (targetSize - originalSize * desiredScale) / (sumWeightedDist || 1);
+            baseScale = desiredScale;
+        }
+
+        const slices = [];
+        let currentTargetPos = 0;
+        for (let i = 0; i < numSlices; i++) {
+            const weight = baseScale + K * dists[i];
+            const sliceTargetSize = sliceOrigSize * Math.max(0.01, weight);
+            slices.push({
+                start: i * sliceOrigSize,
+                size: sliceOrigSize,
+                targetStart: currentTargetPos,
+                targetSize: sliceTargetSize
+            });
+            currentTargetPos += sliceTargetSize;
+        }
+
+        if (slices.length > 0) {
+            const lastSlice = slices[slices.length - 1];
+            const error = targetSize - (lastSlice.targetStart + lastSlice.targetSize);
+            lastSlice.targetSize += error;
+        }
+        return slices;
+    }
+
+    function autoSelectANLAxis() {
+        if (!image) return;
+        const { outWidth, outHeight } = calculateDimensions();
+        const destRatio = outWidth / outHeight;
+        const origRatio = image.width / image.height;
+
+        // Si el lienzo es más ancho que la imagen original, estiramos ancho.
+        // Si la imagen original es más ancha que el lienzo, estiramos alto.
+        if (destRatio > origRatio) {
+            state.enlAxis = 'x';
+        } else {
+            state.enlAxis = 'y';
+        }
+        updateUI();
+    }
+
     function updateUI() {
         if (!image) return;
 
@@ -519,6 +652,29 @@
         elements.featherLabel.textContent = elements.feather.value + 'px';
         elements.radiusLabel.textContent = elements.radius.value + 'px';
         elements.qualityVal.textContent = Math.round(elements.quality.value * 100) + '%';
+        
+        elements.enlSafeVal.textContent = elements.enlSafe.value + '%';
+        elements.enlBiasXVal.textContent = (elements.enlBiasX.value > 0 ? '+' : '') + elements.enlBiasX.value + '%';
+        elements.enlBiasYVal.textContent = (elements.enlBiasY.value > 0 ? '+' : '') + elements.enlBiasY.value + '%';
+        elements.enlPowerVal.textContent = parseFloat(elements.enlPower.value).toFixed(1);
+        
+        elements.enlAxisLabel.textContent = 'Adaptando: ' + (state.enlAxis === 'x' ? 'Ancho' : 'Alto');
+
+        // Visibilidad de contenedores de desplazamiento
+        elements.enlBiasXContainer.classList.toggle('hidden', state.enlAxis !== 'x');
+        elements.enlBiasYContainer.classList.toggle('hidden', state.enlAxis !== 'y');
+
+        // Deshabilitar ENL si el ratio es libre (original)
+        const isFree = elements.aspectRatio.value === 'free' && !elements.customRatioToggle.checked;
+        elements.fitENL.disabled = isFree;
+        elements.fitENL.style.opacity = isFree ? '0.5' : '1';
+        elements.fitENL.style.cursor = isFree ? 'not-allowed' : 'pointer';
+        if (isFree && state.enlActive) {
+            state.enlActive = false;
+            elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+            elements.enlSettings.classList.add('hidden');
+        }
+
         elements.exportSize.disabled = elements.exportAnchor.value === 'original';
         
         const isCircle = elements.circleCrop.checked;
@@ -567,14 +723,84 @@
         const scaling = elements.scalingMethod.value;
         if (scaling === 'pixel') { ctx.imageSmoothingEnabled = false; } else { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = scaling; }
         
-        const scaleX = outWidth / image.width, scaleY = outHeight / image.height, baseScale = Math.max(scaleX, scaleY);
-        const imgDrawWidth = image.width * baseScale * state.zoom, imgDrawHeight = image.height * baseScale * state.zoom;
+        const scaleX = outWidth / image.width, scaleY = outHeight / image.height;
+        let baseScale;
+        
+        // Ajuste de escala base para ENL:
+        // Queremos que el eje que NO se deforma se ajuste al lienzo (Contain en ese eje)
+        // para que el eje deformado pueda estirarse/comprimirse sin recortes previos.
+        if (state.enlActive) {
+            if (state.enlAxis === 'x') baseScale = scaleY;
+            else if (state.enlAxis === 'y') baseScale = scaleX;
+            else baseScale = Math.min(scaleX, scaleY);
+        } else {
+            baseScale = Math.max(scaleX, scaleY);
+        }
+
+        let imgDrawWidth = image.width * baseScale * state.zoom, imgDrawHeight = image.height * baseScale * state.zoom;
+        
+        if (state.enlActive) {
+            if (state.enlAxis === 'x') imgDrawWidth = outWidth * state.zoom;
+            if (state.enlAxis === 'y') imgDrawHeight = outHeight * state.zoom;
+        }
+
         const startX = (outWidth - imgDrawWidth) / 2 + state.panX, startY = (outHeight - imgDrawHeight) / 2 + state.panY;
         
         ctx.save();
         drawPath(ctx, outWidth, outHeight, borderRadius, isCircle);
         ctx.clip();
-        ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
+
+        if (state.enlActive) {
+            const numSlices = 60;
+            const safe = parseFloat(elements.enlSafe.value);
+            const biasX = parseFloat(elements.enlBiasX.value);
+            const biasY = parseFloat(elements.enlBiasY.value);
+            const power = parseFloat(elements.enlPower.value);
+            const useX = state.enlAxis === 'x';
+
+            if (useX) {
+                const vScale = imgDrawHeight / image.height;
+                const slicesX = getNLSSlices(numSlices, image.width, imgDrawWidth, safe, biasX, vScale, power);
+                slicesX.forEach(sx => {
+                    ctx.drawImage(image, sx.start, 0, sx.size, image.height, 
+                        startX + sx.targetStart, 
+                        startY, 
+                        sx.targetSize + 0.5, 
+                        imgDrawHeight);
+                });
+                
+                // Dibujar guías de zona segura
+                ctx.save();
+                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
+                ctx.setLineDash([5, 5]);
+                const safeW = (imgDrawWidth * (safe / 100));
+                const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
+                ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
+                ctx.restore();
+
+            } else {
+                const hScale = imgDrawWidth / image.width;
+                const slicesY = getNLSSlices(numSlices, image.height, imgDrawHeight, safe, biasY, hScale, power);
+                slicesY.forEach(sy => {
+                    ctx.drawImage(image, 0, sy.start, image.width, sy.size, 
+                        startX, 
+                        startY + sy.targetStart, 
+                        imgDrawWidth, 
+                        sy.targetSize + 0.5);
+                });
+
+                // Guías horizontales
+                ctx.save();
+                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
+                ctx.setLineDash([5, 5]);
+                const safeH = (imgDrawHeight * (safe / 100));
+                const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
+                ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
+                ctx.restore();
+            }
+        } else {
+            ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
+        }
         ctx.restore();
 
         if (feather > 0) {
@@ -646,15 +872,46 @@
         });
     });
 
-    [elements.aspectRatio, elements.exportAnchor, elements.exportSize, elements.scalingMethod, elements.customW, elements.customH, elements.circleCrop].forEach(el => el.addEventListener('input', () => { updateUI(); updateCanvas(); }));
-    elements.customRatioToggle.addEventListener('change', (e) => { elements.aspectRatio.disabled = e.target.checked; elements.customRatioInputs.classList.toggle('hidden', !e.target.checked); updateCanvas(); });
+    [elements.aspectRatio, elements.exportAnchor, elements.exportSize, elements.scalingMethod, elements.customW, elements.customH, elements.circleCrop].forEach(el => el.addEventListener('input', () => { 
+        if (state.enlActive && (el === elements.aspectRatio || el === elements.customW || el === elements.customH)) autoSelectANLAxis();
+        updateUI(); updateCanvas(); 
+    }));
+    elements.customRatioToggle.addEventListener('change', (e) => { 
+        elements.aspectRatio.disabled = e.target.checked; 
+        elements.customRatioInputs.classList.toggle('hidden', !e.target.checked); 
+        if (state.enlActive) autoSelectANLAxis();
+        updateCanvas(); 
+    });
     elements.zoom.addEventListener('input', (e) => { state.zoom = parseFloat(e.target.value); updateUI(); updateCanvas(); });
     elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, state.zoom + 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     elements.zoomOut.addEventListener('click', () => { state.zoom = Math.max(0.1, state.zoom - 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
-    elements.fitCover.addEventListener('click', () => { state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1; updateUI(); updateCanvas(); });
+    
+    elements.fitENL.addEventListener('click', () => {
+        state.enlActive = !state.enlActive;
+        if (state.enlActive) autoSelectANLAxis();
+        elements.fitENL.classList.toggle('bg-indigo-600', state.enlActive);
+        elements.fitENL.classList.toggle('text-white', state.enlActive);
+        elements.enlSettings.classList.toggle('hidden', !state.enlActive);
+        updateUI(); updateCanvas();
+    });
+
+    elements.enlSafe.addEventListener('input', (e) => { elements.enlSafeVal.textContent = e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlBiasX.addEventListener('input', (e) => { elements.enlBiasXVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlBiasY.addEventListener('input', (e) => { elements.enlBiasYVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlPower.addEventListener('input', (e) => { elements.enlPowerVal.textContent = parseFloat(e.target.value).toFixed(1); updateUI(); updateCanvas(); });
+
+    elements.fitCover.addEventListener('click', () => { 
+        state.enlActive = false;
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        elements.enlSettings.classList.add('hidden');
+        state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1; updateUI(); updateCanvas(); 
+    });
     
     elements.fitContain.addEventListener('click', () => {
         if (!image) return;
+        state.enlActive = false;
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        elements.enlSettings.classList.add('hidden');
         const { outWidth, outHeight } = calculateDimensions();
         const scaleX = outWidth / image.width, scaleY = outHeight / image.height;
         state.zoom = Math.min(scaleX, scaleY) / Math.max(scaleX, scaleY);
