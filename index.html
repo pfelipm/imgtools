@@ -184,9 +184,10 @@
 
             <div class="space-y-1">
                 <label class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Ajuste rápido</label>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <button id="fitCover" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Llenar</button>
                     <button id="fitContain" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Contener</button>
+                    <button id="fitStretch" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Estirar</button>
                 </div>
                 <button id="fitENL" class="mt-2 w-full text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center justify-center gap-1">
                     Adaptar (no lineal)
@@ -200,11 +201,11 @@
                     </div>
                     
                     <div class="space-y-1">
-                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Porcentaje central que mantiene la proporción original. Al 0% la distorsión es total desde el centro; al 100% el escalado es lineal (estiramiento uniforme).">
+                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Porcentaje central que mantiene la proporción original intacta. La distorsión se reparte progresivamente hacia los extremos.">
                             <span>Zona segura</span>
                             <span id="enlSafeVal" class="text-indigo-600 dark:text-indigo-400 font-bold">30%</span>
                         </label>
-                        <input type="range" id="enlSafe" min="0" max="100" value="30" class="w-full h-1.5 accent-indigo-600">
+                        <input type="range" id="enlSafe" min="0" max="80" value="30" class="w-full h-1.5 accent-indigo-600">
                     </div>
 
                     <div id="enlBiasXContainer" class="space-y-1">
@@ -416,6 +417,7 @@
         ratioError: document.getElementById('ratioError'),
         fitCover: document.getElementById('fitCover'),
         fitContain: document.getElementById('fitContain'),
+        fitStretch: document.getElementById('fitStretch'),
         fitENL: document.getElementById('fitENL'),
         enlSettings: document.getElementById('enlSettings'),
         enlAxisLabel: document.getElementById('enlAxisLabel'),
@@ -476,7 +478,9 @@
         zoom: 1, panX: 0, panY: 0, 
         isDragging: false, lastX: 0, lastY: 0, lockAxis: null,
         enlActive: false,
-        enlAxis: 'x' // 'x' o 'y'
+        enlAxis: 'x', // 'x' o 'y'
+        enlShowGuides: false,
+        stretchActive: false
     };
 
     function formatBytes(bytes, decimals = 1) {
@@ -527,6 +531,8 @@
         state.zoom = 1; state.panX = 0; state.panY = 0;
         state.enlActive = false;
         state.enlAxis = 'x';
+        state.enlShowGuides = false;
+        state.stretchActive = false;
         elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
         elements.enlSettings.classList.add('hidden');
         elements.enlSafe.value = 30; elements.enlBiasX.value = 0; elements.enlBiasY.value = 0;
@@ -744,6 +750,11 @@
             if (state.enlAxis === 'y') imgDrawHeight = outHeight * state.zoom;
         }
 
+        if (state.stretchActive && !state.enlActive) {
+            imgDrawWidth = outWidth * state.zoom;
+            imgDrawHeight = outHeight * state.zoom;
+        }
+
         const startX = (outWidth - imgDrawWidth) / 2 + state.panX, startY = (outHeight - imgDrawHeight) / 2 + state.panY;
         
         ctx.save();
@@ -769,14 +780,24 @@
                         imgDrawHeight);
                 });
                 
-                // Dibujar guías de zona segura
-                ctx.save();
-                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
-                ctx.setLineDash([5, 5]);
-                const safeW = (imgDrawWidth * (safe / 100));
-                const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
-                ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
-                ctx.restore();
+                // Dibujar guías de zona segura de alta visibilidad
+                if (state.enlShowGuides) {
+                    ctx.save();
+                    const safeW = (imgDrawWidth * (safe / 100));
+                    const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
+                    
+                    // Sombra/Borde negro para contraste
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
+                    
+                    // Línea verde neón prominente
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#4ade80';
+                    ctx.setLineDash([8, 4]);
+                    ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
+                    ctx.restore();
+                }
 
             } else {
                 const hScale = imgDrawWidth / image.width;
@@ -789,14 +810,24 @@
                         sy.targetSize + 0.5);
                 });
 
-                // Guías horizontales
-                ctx.save();
-                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
-                ctx.setLineDash([5, 5]);
-                const safeH = (imgDrawHeight * (safe / 100));
-                const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
-                ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
-                ctx.restore();
+                // Guías horizontales de alta visibilidad
+                if (state.enlShowGuides) {
+                    ctx.save();
+                    const safeH = (imgDrawHeight * (safe / 100));
+                    const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
+                    
+                    // Sombra/Borde negro para contraste
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
+                    
+                    // Línea verde neón prominente
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#4ade80';
+                    ctx.setLineDash([8, 4]);
+                    ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
+                    ctx.restore();
+                }
             }
         } else {
             ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
@@ -886,22 +917,9 @@
     elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, state.zoom + 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     elements.zoomOut.addEventListener('click', () => { state.zoom = Math.max(0.1, state.zoom - 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     
-    elements.fitENL.addEventListener('click', () => {
-        state.enlActive = !state.enlActive;
-        if (state.enlActive) autoSelectANLAxis();
-        elements.fitENL.classList.toggle('bg-indigo-600', state.enlActive);
-        elements.fitENL.classList.toggle('text-white', state.enlActive);
-        elements.enlSettings.classList.toggle('hidden', !state.enlActive);
-        updateUI(); updateCanvas();
-    });
-
-    elements.enlSafe.addEventListener('input', (e) => { elements.enlSafeVal.textContent = e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlBiasX.addEventListener('input', (e) => { elements.enlBiasXVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlBiasY.addEventListener('input', (e) => { elements.enlBiasYVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlPower.addEventListener('input', (e) => { elements.enlPowerVal.textContent = parseFloat(e.target.value).toFixed(1); updateUI(); updateCanvas(); });
-
     elements.fitCover.addEventListener('click', () => { 
         state.enlActive = false;
+        state.stretchActive = false;
         elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
         elements.enlSettings.classList.add('hidden');
         state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1; updateUI(); updateCanvas(); 
@@ -910,6 +928,7 @@
     elements.fitContain.addEventListener('click', () => {
         if (!image) return;
         state.enlActive = false;
+        state.stretchActive = false;
         elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
         elements.enlSettings.classList.add('hidden');
         const { outWidth, outHeight } = calculateDimensions();
@@ -917,6 +936,39 @@
         state.zoom = Math.min(scaleX, scaleY) / Math.max(scaleX, scaleY);
         state.panX = 0; state.panY = 0; elements.zoom.value = state.zoom; updateUI(); updateCanvas();
     });
+
+    elements.fitStretch.addEventListener('click', () => {
+        if (!image) return;
+        state.enlActive = false;
+        state.stretchActive = true;
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        elements.enlSettings.classList.add('hidden');
+        state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1; updateUI(); updateCanvas();
+    });
+    
+    elements.fitENL.addEventListener('click', () => {
+        state.enlActive = !state.enlActive;
+        state.stretchActive = false;
+        if (state.enlActive) autoSelectANLAxis();
+        elements.fitENL.classList.toggle('bg-indigo-600', state.enlActive);
+        elements.fitENL.classList.toggle('text-white', state.enlActive);
+        elements.enlSettings.classList.toggle('hidden', !state.enlActive);
+        updateUI(); updateCanvas();
+    });
+
+    [elements.enlSafe, elements.enlBiasX, elements.enlBiasY, elements.enlPower].forEach(el => {
+        const show = () => { state.enlShowGuides = true; updateCanvas(); };
+        const hide = () => { state.enlShowGuides = false; updateCanvas(); };
+        el.addEventListener('mousedown', show);
+        el.addEventListener('mouseup', hide);
+        el.addEventListener('touchstart', show, {passive: true});
+        el.addEventListener('touchend', hide, {passive: true});
+    });
+
+    elements.enlSafe.addEventListener('input', (e) => { elements.enlSafeVal.textContent = e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlBiasX.addEventListener('input', (e) => { elements.enlBiasXVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlBiasY.addEventListener('input', (e) => { elements.enlBiasYVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
+    elements.enlPower.addEventListener('input', (e) => { elements.enlPowerVal.textContent = parseFloat(e.target.value).toFixed(1); updateUI(); updateCanvas(); });
 
     elements.balbinoMode.addEventListener('click', () => {
         if (!image) return;
