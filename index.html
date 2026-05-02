@@ -958,12 +958,13 @@
 
     [elements.enlSafe, elements.enlBiasX, elements.enlBiasY, elements.enlPower].forEach(el => {
         const show = () => { state.enlShowGuides = true; updateCanvas(); };
-        const hide = () => { state.enlShowGuides = false; updateCanvas(); };
         el.addEventListener('mousedown', show);
-        el.addEventListener('mouseup', hide);
         el.addEventListener('touchstart', show, {passive: true});
-        el.addEventListener('touchend', hide, {passive: true});
     });
+
+    const hideENLGuides = () => { if (state.enlShowGuides) { state.enlShowGuides = false; updateCanvas(); } };
+    window.addEventListener('mouseup', hideENLGuides);
+    window.addEventListener('touchend', hideENLGuides);
 
     elements.enlSafe.addEventListener('input', (e) => { elements.enlSafeVal.textContent = e.target.value + '%'; updateUI(); updateCanvas(); });
     elements.enlBiasX.addEventListener('input', (e) => { elements.enlBiasXVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
