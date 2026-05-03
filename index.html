@@ -947,17 +947,22 @@
     });
     
     elements.fitENL.addEventListener('click', () => {
-        state.enlActive = !state.enlActive;
+        if (!image) return;
+        state.enlActive = true;
         state.stretchActive = false;
         
         // Resetear zoom y encuadre para que la adaptación sea sobre el lienzo completo
         state.zoom = 1; state.panX = 0; state.panY = 0;
         elements.zoom.value = 1;
         
-        if (state.enlActive) autoSelectANLAxis();
-        elements.fitENL.classList.toggle('bg-indigo-600', state.enlActive);
-        elements.fitENL.classList.toggle('text-white', state.enlActive);
-        elements.enlSettings.classList.toggle('hidden', !state.enlActive);
+        autoSelectANLAxis();
+        
+        // Aseguramos que el panel de ajustes esté visible
+        elements.enlSettings.classList.remove('hidden');
+        
+        // No aplicamos resaltado persistente para mantener coherencia con otros botones
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        
         updateUI(); updateCanvas();
     });
 
