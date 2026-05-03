@@ -61,10 +61,10 @@ Esta función permite cambiar la relación de aspecto (por ejemplo, de una foto 
 </p>
 
 **Funcionamiento interno:**
-El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. En lugar de aplicar un estiramiento uniforme, el algoritmo aplica una **ley de potencia** para distribuir la distorsión de manera desigual:
+El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. En lugar de aplicar un estiramiento uniforme, el algoritmo aplica una **curva de progresión** para distribuir la distorsión de manera desigual:
 *   **Zona segura:** Define un área central (hasta el 80%) que mantiene su proporción original de 1:1. Es ideal para proteger rostros o logotipos.
 *   **Desplazamiento (bias):** Permite descentrar la zona segura si el elemento importante de la foto no está en medio.
-*   **Transición (power):** Controla la agresividad de la **ley de potencia**. Un valor alto hace que la distorsión sea casi imperceptible en la mayor parte de la imagen, concentrándola solo en los bordes extremos.
+*   **Transición (power):** Controla la agresividad de la **curva de progresión**. Un valor alto hace que la distorsión sea casi imperceptible en la mayor parte de la imagen, concentrándola solo en los bordes extremos.
 
 Para facilitar el ajuste, ImgTools muestra **guías visuales de alta visibilidad** (verde neón sobre fondo negro) mientras mueves los deslizadores, desapareciendo automáticamente al soltarlos.
 
