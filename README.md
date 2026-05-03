@@ -6,7 +6,7 @@
 ![Actualizado](https://img.shields.io/badge/Actualizado-1_de_mayo_de_2026-indigo)
 
 <p align="center">
-  <img src="assets/imgtools-interface-01-2026-05-01.png" alt="ImgTools Interface">
+  <img src="assets/imgtools-interface-01-2026-05-01.png" alt="Interfaz de ImgTools">
 </p>
 
 ## 🎯 ¿Por qué existe ImgTools?
@@ -21,7 +21,7 @@ Si eres parte del equipo de coordinación de **GEG Spain**, conoces el ritual. B
 
 **¡Basta!** ImgTools nace como una "protesta-broma" cariñosa para automatizar este proceso. Queremos mucho a BalBino, pero queremos más nuestro tiempo. Con esta herramienta, lo que antes llevaba 5 minutos ahora se hace en 5 segundos.
 
-## 🚀 El mítico "Modo BalBino"
+## 🚀 El mítico "modo BalBino"
 
 La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamente:
 *   Relación de aspecto **16:9** perfecta.
@@ -31,51 +31,62 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 
 **Resultado:** Una imagen lista para WordPress, ligera, nítida y, lo más importante, **BalBino-approved**.
 
-## 🧠 Adaptación No Lineal (ANL)
-
-Esta innovadora función permite cambiar la relación de aspecto de una imagen (por ejemplo, de 1:1 a 16:9) sin necesidad de recortar el contenido ni sufrir las consecuencias de un estiramiento uniforme (que achata o alarga a las personas).
-
-<p align="center">
-  <img src="assets/ajuste-inteligente.gif" alt="Demostración ANL">
-  <br>
-  <em>Demostración del algoritmo de Adaptación No Lineal (ANL) en acción.</em>
-</p>
-
-**¿Cómo funciona internamente?**
-El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. El algoritmo calcula automáticamente qué eje debe adaptarse y aplica una función de escala no lineal:
-*   **Zona segura:** El área central (ajustable de 0 a 100%) que mantiene su proporción original intacta.
-*   **Desplazamiento (Bias):** Si el sujeto no está centrado, puedes mover la zona segura para proteger el área de interés.
-*   **Transición (Power):** Controla la "curvatura" del estiramiento. Valores altos concentran la distorsión solo en los bordes extremos, dejando casi toda la imagen con apariencia natural.
-
 ## ✨ Características principales
 
-### 1. Encuadre y ANL
+### 1. Encuadre y adaptación inteligente
+
+ImgTools ofrece un control total sobre cómo se sitúa la imagen en el lienzo final:
+
 *   **Ratios preestablecidos:** 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
 *   **Zoom y pan de precisión:** Control total con la rueda del ratón o arrastrando la imagen.
 *   **Bloqueo de ejes:** Mantén presionada la tecla **Mayús** para desplazar la imagen solo en horizontal o vertical.
-*   **Adaptación Inteligente:** El botón **Adaptar (no lineal)** rellena el lienzo automáticamente protegiendo el sujeto.
+*   **Ajustes rápidos:**
+    *   **Llenar:** Escala la imagen hasta cubrir todo el lienzo (recorta el exceso).
+    *   **Contener:** Ajusta la imagen para que se vea completa (deja bandas negras).
+    *   **Estirar:** Realiza un estiramiento lineal uniforme para ocupar todo el espacio.
+    *   **Adaptar (no lineal):** La función estrella para redimensionar sin deformar el contenido esencial.
 
 <p align="center">
-  <img src="assets/ajustes-encuadre-2026-05-01.png" alt="Ajustes de Encuadre">
+  <img src="assets/ajustes-encuadre-2026-05-01.png" alt="Ajustes de encuadre">
 </p>
 
-### 2. Efectos y Calidad
-*   **Recorte circular/elíptico:** Máscaras geométricas perfectas para avatares.
-*   **Suavizado perimetral (Feather):** Desenfoque de bordes que sigue la silueta de la imagen.
-*   **Radio de esquinas:** Redondeo profesional ajustable.
-*   **Límites inteligentes:** Los límites de los efectos escalan proporcionalmente a la resolución de salida.
+#### 🧠 Los secretos de la adaptación no lineal (ANL)
+
+Esta función permite cambiar la relación de aspecto (por ejemplo, de una foto cuadrada a una panorámica 16:9) protegiendo al sujeto principal.
 
 <p align="center">
-  <img src="assets/ajustes-efectos-2026-05-01.png" alt="Ajustes de Efectos">
+  <img src="assets/ajuste-inteligente.gif" alt="Demostración de ANL">
+  <br>
+  <em>Demostración del algoritmo de adaptación no lineal en acción.</em>
 </p>
 
-### 3. Exportación y Rendimiento
-*   **Motor de escalado:** Control total sobre el método de suavizado (bicúbico o píxel-art).
-*   **Información en tiempo real:** Compara el tamaño del archivo original con el de salida y visualiza el ahorro de espacio.
-*   **Ajuste fino numérico:** Haz clic en cualquier valor para introducir los píxeles exactos mediante el teclado.
+**Funcionamiento interno:**
+El motor de ImgTools divide la imagen en **60 rebanadas (slices)**. En lugar de aplicar un estiramiento uniforme, el algoritmo utiliza una función de potencia para distribuir la distorsión de manera desigual:
+*   **Zona segura:** Define un área central (hasta el 80%) que mantiene su proporción original de 1:1. Es ideal para proteger rostros o logotipos.
+*   **Desplazamiento (bias):** Permite descentrar la zona segura si el elemento importante de la foto no está en medio.
+*   **Transición (power):** Controla la agresividad de la curva de estiramiento. Un valor alto hace que la distorsión sea casi imperceptible en la mayor parte de la imagen, concentrándola solo en los bordes extremos.
+
+Para facilitar el ajuste, ImgTools muestra **guías visuales de alta visibilidad** (verde neón sobre fondo negro) mientras mueves los deslizadores, desapareciendo automáticamente al soltarlos.
+
+### 2. Efectos y calidad
+
+*   **Recorte circular o elíptico:** Máscaras geométricas perfectas para avatares o creatividades.
+*   **Suavizado perimetral (feather):** Desenfoque de bordes que sigue la silueta de la imagen (rectangular o curva).
+*   **Radio de esquinas:** Redondeo profesional ajustable con precisión de píxel.
+*   **Límites inteligentes:** Todos los efectos escalan sus límites de forma proporcional a la resolución de salida, garantizando resultados consistentes en cualquier tamaño.
 
 <p align="center">
-  <img src="assets/info-origen-salida-2026-05-01.png" alt="Info de Salida">
+  <img src="assets/ajustes-efectos-2026-05-01.png" alt="Ajustes de efectos">
+</p>
+
+### 3. Exportación y rendimiento
+
+*   **Motor de escalado:** Control total sobre el método de suavizado (bicúbico de alta calidad o píxel-art).
+*   **Información en tiempo real:** Compara el peso del archivo original con el de salida y visualiza el porcentaje de ahorro.
+*   **Ajuste fino numérico:** Haz clic en cualquier etiqueta de valor para introducir los datos exactos mediante el teclado.
+
+<p align="center">
+  <img src="assets/info-origen-salida-2026-05-01.png" alt="Información de salida">
 </p>
 
 ## 🛠️ Instalación y uso
@@ -87,7 +98,7 @@ ImgTools es una **Single Page Application (SPA)** autocontenida y 100% privada (
 
 ## 🤝 Contribuciones
 
-Si quieres añadir más modos (¿un "Modo Instagram"?, ¿un "Modo LinkedIn"?), las pull requests son más que bienvenidas. Eso sí, el **Modo BalBino** es sagrado y no se toca.
+Si quieres añadir más modos (¿un "modo Instagram"?, ¿un "modo LinkedIn"?), las pull requests son más que bienvenidas. Eso sí, el **modo BalBino** es sagrado y no se toca.
 
 ## ✍️ Autoría y agradecimientos
 
