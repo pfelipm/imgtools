@@ -1,4 +1,4 @@
-const CACHE_NAME = 'imgtools-cache-v2.0.0-beta.8';
+const CACHE_NAME = 'imgtools-cache-v2.0.0-beta.9';
 const SHARED_CACHE_KEY = './__shared-image__';
 const APP_SHELL = [
     './',
