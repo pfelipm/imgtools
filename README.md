@@ -3,7 +3,13 @@
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Actualizado](https://img.shields.io/badge/Actualizado-1_de_mayo_de_2026-indigo)
+![Versión](https://img.shields.io/badge/Versi%C3%B3n-v2.0.0--beta.1-amber)
+![Actualizado](https://img.shields.io/badge/Actualizado-15_de_noviembre_de_2026-indigo)
+
+### 🌐 Acceso temporal a esta versión 2.0 (Beta): [pfelipm.github.io/imgtools](https://pfelipm.github.io/imgtools/)
+
+> [!IMPORTANT]
+> 🧪 **Release `v2.0` en fase beta:** Para probar esta nueva versión en desarrollo utiliza temporalmente **[https://pfelipm.github.io/imgtools/](https://pfelipm.github.io/imgtools/)**. El dominio de producción ([imgtools.pablofelip.online](https://imgtools.pablofelip.online)) mantiene por ahora la versión estable `1.0` hasta finalizar el periodo de pruebas.
 
 <p align="center">
   <img src="assets/imgtools-interface-01-2026-05-01.png" alt="Interfaz de ImgTools">
