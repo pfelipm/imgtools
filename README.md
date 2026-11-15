@@ -3,7 +3,7 @@
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Versión](https://img.shields.io/badge/Versi%C3%B3n-v2.0.0--beta.4-amber)
+![Versión](https://img.shields.io/badge/Versi%C3%B3n-v2.0.0--beta.5-amber)
 ![Actualizado](https://img.shields.io/badge/Actualizado-15_de_noviembre_de_2026-indigo)
 
 ### 🌐 Acceso temporal a esta versión 2.0 (Beta): [pfelipm.github.io/imgtools](https://pfelipm.github.io/imgtools/)
@@ -43,14 +43,16 @@ La joya de la corona. Un botón dorado que, al ser pulsado, configura mágicamen
 
 ImgTools ofrece un control total sobre cómo se sitúa la imagen en el lienzo final:
 
-*   **Ratios preestablecidos:** 1:1, 4:3, 16:9, 21:9 y dimensiones personalizadas.
-*   **Zoom y pan de precisión:** Control total con la rueda del ratón o arrastrando la imagen.
-*   **Bloqueo de ejes:** Mantén presionada la tecla **Mayús** para desplazar la imagen solo en horizontal o vertical.
+*   **Ratios preestablecidos:** `1:1`, `4:3`, `16:9`, `16:10`, `21:9`, `21:10` y dimensiones personalizadas (`ancho:alto`).
+*   **Perfiles rápidos y preajustes propios:** selector compacto para *LinkedIn* (Post/Banner), *Instagram* (Cuadrado/Vertical), *YouTube* y cabeceras de *Google Classroom / Forms*, con guardado de perfiles propios en `localStorage` (respetando intacto el protagonismo de **🚀 Modo BalBino**).
+*   **Orientación previa de origen:** gira en pasos de `90°` y voltea horizontal o verticalmente antes del encuadre y de la Adaptación No Lineal.
+*   **Zoom y pan de precisión:** control suave centrado en el cursor, pellizco táctil (*pinch-to-zoom*), arrastre directo, doble clic para centrar y ajuste fino con flechas (`1 px`, o `10 px` con `Mayús`).
+*   **Bloqueo de ejes:** mantén presionada la tecla **Mayús** mientras arrastras para desplazar la imagen solo en horizontal o vertical.
 *   **Ajustes rápidos:**
-    *   **Llenar:** Escala la imagen hasta cubrir todo el lienzo (recorta el exceso).
-    *   **Contener:** Ajusta la imagen para que se vea completa (deja bandas negras).
-    *   **Estirar:** Realiza un estiramiento lineal uniforme para ocupar todo el espacio.
-    *   **Adaptar (no lineal):** La función estrella para redimensionar sin deformar el contenido esencial.
+    *   **Llenar:** escala la imagen hasta cubrir todo el lienzo (recorta el exceso).
+    *   **Contener:** ajusta la imagen para que se vea completa, con selector de relleno de fondo (**Transparente**, **Desenfocado / *Blur-fill*** con brillo ajustable o **Color sólido**).
+    *   **Estirar:** realiza un estiramiento lineal uniforme para ocupar todo el espacio.
+    *   **Adaptar (no lineal):** la función estrella para redimensionar sin deformar el contenido esencial.
 
 <p align="center">
   <img src="assets/ajustes-encuadre-2026-05-01.png" alt="Ajustes de encuadre">
@@ -85,11 +87,13 @@ Para facilitar el ajuste, ImgTools muestra **guías visuales de alta visibilidad
   <img src="assets/ajustes-efectos-2026-05-01.png" alt="Ajustes de efectos">
 </p>
 
-### 3. Exportación y rendimiento
+### 3. Carga rápida, exportación y rendimiento
 
-*   **Motor de escalado:** Control total sobre el método de suavizado (bicúbico de alta calidad o píxel-art).
-*   **Información en tiempo real:** Compara el peso del archivo original con el de salida y visualiza el porcentaje de ahorro.
-*   **Ajuste fino numérico:** Haz clic en cualquier etiqueta de valor para introducir los datos exactos mediante el teclado.
+*   **Formatos de entrada y salida:** importa **JPG**, **PNG**, **WEBP**, **SVG** vectorial (rasterizado limpio a alta densidad sin *tainted canvas*), **AVIF**, **GIF** y **BMP**; exporta en **PNG**, **WEBP**, **JPG** (con fondo blanco en transparencias) y **AVIF** cuando el navegador lo soporta.
+*   **Flujo sin fricción y portapapeles:** carga archivos con *Drag & Drop* en cualquier punto de la ventana, pega capturas o SVG con **`Ctrl+V`**, mantén **Ver original** (o la tecla **`Espacio`**) para comparar al instante y copia la imagen resultante con **Copiar al portapapeles**.
+*   **Motor de escalado:** control total sobre el método de suavizado (progresivo de alta calidad o píxel-art).
+*   **Información en tiempo real:** compara el peso del archivo original con el de salida y visualiza al vuelo el ahorro o incremento porcentual.
+*   **Ajuste fino numérico:** haz clic en cualquier etiqueta de valor (`Zoom`, `Calidad`, `Brillo del fondo`, `Suavizado`, `Radio`, `Zona segura`, `Desplazamiento`, `Transición`) para introducir el valor exacto por teclado.
 
 <p align="center">
   <img src="assets/info-origen-salida-2026-05-01.png" alt="Información de salida">
@@ -97,10 +101,10 @@ Para facilitar el ajuste, ImgTools muestra **guías visuales de alta visibilidad
 
 ## 🛠️ Instalación y uso
 
-ImgTools es una **Single Page Application (SPA)** autocontenida y 100% privada (todo el proceso ocurre en tu navegador local). Tienes dos formas de usarla:
+ImgTools es una **Progressive Web App (PWA) 100% privada y *offline***: todo el procesamiento ocurre en tu navegador y la aplicación no depende de servidores ni CDN externos para funcionar.
 
-1.  **En línea:** Accede directamente a la herramienta en **[imgtools.pablofelip.online](https://imgtools.pablofelip.online)**.
-2.  **Local:** Descarga el archivo `index.html` de este repositorio y ábrelo en cualquier navegador moderno. No necesita instalación ni dependencias.
+1.  **En línea / PWA instalable:** Accede en **[pfelipm.github.io/imgtools](https://pfelipm.github.io/imgtools/)** (canal beta `v2.0`) o en **[imgtools.pablofelip.online](https://imgtools.pablofelip.online)** (`v1.0` estable). En `v2.0` puedes instalarla como app de escritorio o móvil (**Instalar app**), usarla sin conexión mediante Service Worker y recibir imágenes compartidas desde el sistema (*Web Share Target*).
+2.  **Local autónomo:** Descarga `index.html` y ábrelo directamente en cualquier navegador moderno; lleva su CSS compilado integrado, por lo que funciona incluso sin acceso a internet.
 
 ## 🤝 Contribuciones
 

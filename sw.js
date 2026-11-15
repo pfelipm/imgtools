@@ -1,0 +1,103 @@
+const CACHE_NAME = 'imgtools-cache-v2.0.0-beta.5';
+const SHARED_CACHE_KEY = './__shared-image__';
+const APP_SHELL = [
+    './',
+    './index.html',
+    './manifest.json',
+    './icons/icon.svg',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/icon-maskable-512.png',
+    './icons/apple-touch-icon.png'
+];
+
+self.addEventListener('install', (event) => {
+    event.waitUntil((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.addAll(APP_SHELL.map((url) => new Request(url, { cache: 'reload' })));
+    })());
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil((async () => {
+        const keys = await caches.keys();
+        await Promise.all(
+            keys
+                .filter((key) => key.startsWith('imgtools-cache-') && key !== CACHE_NAME)
+                .map((key) => caches.delete(key))
+        );
+        await self.clients.claim();
+    })());
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    if (event.request.method === 'POST' && url.origin === self.location.origin && url.searchParams.get('share-target') === '1') {
+        event.respondWith((async () => {
+            try {
+                const formData = await event.request.formData();
+                const file = formData.get('image');
+                if (file && typeof file.arrayBuffer === 'function') {
+                    const cache = await caches.open(CACHE_NAME);
+                    const sharedKeyUrl = new URL(SHARED_CACHE_KEY, self.location.href).href;
+                    await cache.put(
+                        new Request(sharedKeyUrl),
+                        new Response(file, {
+                            headers: {
+                                'Content-Type': file.type || 'application/octet-stream',
+                                'X-Shared-Name': encodeURIComponent(file.name || 'shared-image')
+                            }
+                        })
+                    );
+                }
+            } catch (err) {
+                // Continuar la redirección aunque la entrada compartida sea inválida
+            }
+            return Response.redirect(new URL('./?shared=1', self.location.href).href, 303);
+        })());
+        return;
+    }
+
+    if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
+        return;
+    }
+
+    event.respondWith((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const isNavigate = event.request.mode === 'navigate';
+        const cached = await cache.match(event.request, { ignoreSearch: isNavigate });
+        if (cached) {
+            return cached;
+        }
+
+        if (isNavigate && (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'))) {
+            const indexFallback = await cache.match('./index.html');
+            if (indexFallback) {
+                return indexFallback;
+            }
+        }
+
+        try {
+            const response = await fetch(event.request);
+            if (response && response.status === 200 && response.type === 'basic') {
+                await cache.put(event.request, response.clone());
+            }
+            return response;
+        } catch (err) {
+            if (isNavigate) {
+                const offlineShell = await cache.match('./index.html');
+                if (offlineShell) {
+                    return offlineShell;
+                }
+            }
+            throw err;
+        }
+    })());
+});

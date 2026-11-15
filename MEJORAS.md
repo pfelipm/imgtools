@@ -142,7 +142,7 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
     1. Completadas las pruebas de `v2.0`, fusionar `v2.0` en `main` (**Release `v2.0.0`**), cambiar la fuente de GitHub Pages a `main` y añadir el archivo `CNAME` con `imgtools.pablofelip.online`.
     2. Apuntar el registro DNS `CNAME` del subdominio `imgtools` directamente a `pfelipm.github.io` y activar *Enforce HTTPS*, eliminando definitivamente las restricciones del `<iframe>` de Google Sites (`sandbox` en portapapeles, descargas, `localStorage` y registro de PWA) sin cambiar la URL pública.
 
-- [ ] **Conversión en Progressive Web App (PWA) 100% *Offline*, fijado de versiones CDN y SRI**
+- [x] **Conversión en Progressive Web App (PWA) 100% *Offline*, fijado de versiones CDN y SRI** *(implementado en `v2.0.0-beta.5`; Tailwind v3.4.17 compilado en línea sin dependencias CDN externas; SRI se aplicará a `JSZip` si se incorpora en `beta.6`)*
   - **Ubicación:** `index.html` (Tailwind Play CDN en línea ~9, Google Fonts en línea ~23 y miniatura remota de Google Drive en `#infoModal`, línea ~390).
   - **Problema:** `README.md` (línea ~97) indica que descargar `index.html` permite usarlo en local sin dependencias, pero sin conexión a internet el script `https://cdn.tailwindcss.com` no carga y toda la maquetación se rompe (además de emitir aviso en consola por no estar pensado para producción).
   - **Solución propuesta (alineada con `v2.0` de *PDF Tools (SPA)*):**
@@ -156,12 +156,12 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
 
 ## 6. Documentación y Repositorio
 
-- [ ] **Optimizar el peso de `assets/ajuste-inteligente.gif` (`54 MB` → `~2–4 MB`) y limpiar archivos huérfanos en `assets/`**
+- [x] **Optimizar el peso de `assets/ajuste-inteligente.gif` (`54 MB` → `~2–4 MB`) y limpiar archivos huérfanos en `assets/`** *(implementado en `v2.0.0-beta.5`: reducido a `~3,5 MB` y eliminados los 8 archivos no referenciados)*
   - **Situación actual:** La carpeta `assets/` ocupa **64 MB**, de los cuales `assets/ajuste-inteligente.gif` supone **54 MB** (~84% del total), superando el umbral de recomendación de 50 MB de GitHub y ralentizando o bloqueando su carga a través del proxy `camo.githubusercontent.com` en el `README.md`.
   - **Archivos no referenciados detectados:** `imgtools-interface.png`, `imgtools-interface-2026-04-13.png`, `imgtools-interface-02-2026-05-01.png`, `destacado HQ.png`, `destacado TIC_TOOLS (LQ).png`, `favicon.png`, `logo.png` y `ajuste-inteligente.mp4` no se enlazan ni desde `README.md` ni desde `index.html`.
   - **Solución propuesta:** Regenerar `ajuste-inteligente.gif` con paleta adaptativa (`ffmpeg palettegen/paletteuse`, `800–960 px`, `12–15 fps`, al igual que se redujo `demo.gif` de `15,7 MB` a `2,3 MB` en *PDF Tools*) y retirar del árbol principal los recursos antiguos que no se utilicen externamente.
 
-- [ ] **Sincronizar `README.md` con las capacidades reales y futuras**
+- [x] **Sincronizar `README.md` con las capacidades reales y futuras** *(implementado en `v2.0.0-beta.5`)*
   - Ajustar o implementar las menciones actuales a *"Información en tiempo real"*, *"cualquier etiqueta de valor"* y uso local sin dependencias de red, y documentar la lista completa de ratios disponibles (`16:10` y `21:10` ya existen en el código pero no figuran en `README.md`, línea ~40).
 
 ---
