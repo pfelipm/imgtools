@@ -92,19 +92,24 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
 
 ## 3. Experiencia de Usuario (UX) e Interfaz
 
-- [ ] **Extender la edición numérica clicable (`setupQuickInput`) a todas las etiquetas de valor**
+- [x] **Corregir geometría del icono de cabecera y unificarlo con el favicon SVG (y futuros iconos PWA)** *(implementado en `v2.0.0-beta.3`)*
+  - **Ubicación:** `index.html` (favicon Data URI en línea ~8, `<svg>` de `<header>` en líneas ~148–159) y copias estáticas `assets/favicon.png` / `assets/logo.png`.
+  - **Problemas detectados:** En el `<svg>` de cabecera el cuadrado redondeado y la lente se centran en `(35, 40)`, pero las escuadras derechas están en `x = 43` en lugar de `48` (marco estrecho `21×36` descentrado en `x = 32.5` del que el círculo blanco sobresale por la derecha hasta `48.25`), además de incrustar `<text>` dependiente de métricas de fuente web. En el favicon falta `viewBox="0 0 512 512"`, falta `stroke-linejoin="round"` (creando esquinas exteriores en inglete agudo junto a puntas redondeadas) y el anillo del círculo (`r=110`, borde exterior `122`) colisiona físicamente con las 4 escuadras (distancia interior `119.8`), fusionándose a `16×16 px`.
+  - **Solución propuesta:** Definir un único pictograma maestro `viewBox="0 0 512 512"` simétrico, con `stroke-linejoin="round"` y separación limpia entre trazos, compartido entre el favicon Data URI, el `<header>` (`40×40 px` separado del texto HTML semántico `ImgTools`) y los futuros iconos `icons/` de la PWA.
+
+- [x] **Extender la edición numérica clicable (`setupQuickInput`) a todas las etiquetas de valor** *(implementado en `v2.0.0-beta.3`)*
   - `README.md` (línea ~86) indica que se puede hacer clic *"en cualquier etiqueta de valor"*, pero actualmente `setupQuickInput()` solo está conectada a `#featherLabel` y `#radiusLabel` (`index.html`, líneas ~894–895).
   - Extenderla a `Zoom` (`#zoomVal`), `Calidad` (`#qualityVal`), `Zona segura` (`#enlSafeVal`), `Desplazamiento` (`#enlBiasXVal` / `#enlBiasYVal`) y `Transición` (`#enlPowerVal`), soportando valores decimales/negativos según el control y cancelación con `Escape`.
 
-- [ ] **Unificar nombres de archivo exportados (`${nombre_original}_${ancho}x${alto}.${ext}`) y extensión `.jpg`**
+- [x] **Unificar nombres de archivo exportados (`${nombre_original}_${ancho}x${alto}.${ext}`) y extensión `.jpg`** *(implementado en `v2.0.0-beta.3`)*
   - En `index.html` (línea ~1041) se exporta siempre `img_tools_${Date.now()}.${format.split('/')[1]}`, perdiendo el nombre original y generando `.jpeg` en lugar de `.jpg`.
   - Conservar el nombre base del archivo cargado sin extensión y añadir dimensiones de salida (ej. `jornada-geg_1920x1080.webp` o `_balbino.webp`), mapeando `image/jpeg` → `.jpg`.
 
-- [ ] **Zoom exponencial anclado al cursor y soporte táctil completo (*Pinch-to-Zoom*)**
+- [x] **Zoom exponencial anclado al cursor y soporte táctil completo (*Pinch-to-Zoom*)** *(implementado en `v2.0.0-beta.3`)*
   - En `wheel` (`index.html`, líneas ~999–1002), sustituir el incremento lineal fijo por escala multiplicativa suave y ajustar `panX`/`panY` para mantener fijo el punto de la imagen bajo el puntero; permitir también restablecer zoom/encuadre con doble clic sobre el lienzo.
   - Migrar los eventos de lienzo a *Pointer Events* o añadir gestión de 2 toques en `touchmove` para permitir pellizcar para hacer zoom y desplazar simultáneamente en móviles y tabletas.
 
-- [ ] **Accesibilidad (a11y), atajos de teclado y modal `<dialog>` semántico**
+- [x] **Accesibilidad (a11y), atajos de teclado y modal `<dialog>` semántico** *(implementado en `v2.0.0-beta.3`)*
   - Añadir `aria-label` y `title` descriptivos en botones solo-icono (`#themeToggle`, `#infoBtn`, `#zoomOut`, `#zoomIn`, `#closeInfo`).
   - Migrar `#infoModal` a `<dialog>` nativo (cierre automático con `Escape` y gestión de foco) e incorporar atajos de teclado globales no intrusivos: `Ctrl+O` (abrir), `Ctrl+S` (descargar), `0` / `Ctrl+0` (restablecer vista) y flechas para ajuste fino de `panX`/`panY` (`1 px`, `10 px` con `Mayús`).
   - Persistir en `localStorage` la preferencia de tema claro/oscuro cuando el usuario la conmute manualmente.
@@ -113,14 +118,14 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
 
 ## 4. Rendimiento y Gestión de Memoria
 
-- [ ] **Sustituir cadenas Base64 (`FileReader.readAsDataURL` / `canvas.toDataURL`) por `Blob` y Object URLs con liberación explícita**
+- [x] **Sustituir cadenas Base64 (`FileReader.readAsDataURL` / `canvas.toDataURL`) por `Blob` y Object URLs con liberación explícita** *(implementado en `v2.0.0-beta.3`)*
   - **Ubicación:** `index.html` (carga en líneas ~497–520 y exportación en líneas ~1033–1041).
   - Cargar el archivo de entrada mediante `URL.createObjectURL(file)` revocándolo en `img.onload`, y exportar mediante `canvas.toBlob()` + `URL.createObjectURL(blob)` revocando tras la descarga (`setTimeout(() => URL.revokeObjectURL(url), 1000)`). Reduce el consumo de RAM hasta un ~50% al trabajar con fotografías de 24–50 MP o salidas en 4K.
 
-- [ ] **Agrupar redibujados en `requestAnimationFrame` y separar las guías ANL en un `<canvas>` o SVG superpuesto**
+- [x] **Agrupar redibujados en `requestAnimationFrame` y separar las guías ANL en un `<canvas>` o SVG superpuesto** *(implementado en `v2.0.0-beta.3`)*
   - En pantallas de 120–144 Hz, mover el ratón o un deslizador ejecuta `updateCanvas()` (60 llamadas `drawImage` + `ctx.filter = blur(...)`) varias veces por fotograma. Planificar el pintado con `requestAnimationFrame` y dibujar las guías temporales de zona segura fuera del canvas de exportación mejora la fluidez en 2K/4K y evita cualquier riesgo de que una guía quede impresa en el archivo descargado.
 
-- [ ] **Escalado progresivo (*step-down*) para grandes reducciones de tamaño**
+- [x] **Escalado progresivo (*step-down*) para grandes reducciones de tamaño** *(implementado en `v2.0.0-beta.3`)*
   - Al reducir imágenes de cámaras de alta resolución (p. ej. `6000×4000` → `480p` o `720p`, factor `< 0.5`), algunos motores 2D muestran *aliasing*/*moiré* incluso con `imageSmoothingQuality = 'high'`. Reducir por mitades sucesivas en un canvas auxiliar fuera de pantalla cuando `method !== 'pixel'` mejora notablemente la nitidez final.
 
 ---

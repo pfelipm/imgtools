@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>ImgTools - Editor avanzado</title>
     <!-- Favicon incrustado (Data URI) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='512' height='512' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23818cf8;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='120' fill='url(%23grad)' /%3E%3Ccircle cx='256' cy='256' r='110' fill='white' fill-opacity='0.2' stroke='white' stroke-width='24' /%3E%3Cpath d='M140 190 V140 H190 M372 190 V140 H322 M140 322 V372 H190 M372 322 V372 H322' stroke='white' stroke-width='32' fill='none' stroke-linecap='round' /%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='55%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Cpath d='M112 188 V112 H188 M400 188 V112 H324 M112 324 V400 H188 M400 324 V400 H324' fill='none' stroke='white' stroke-width='34' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='256' cy='256' r='76' fill='white' fill-opacity='0.18' stroke='white' stroke-width='32'/%3E%3Ccircle cx='282' cy='230' r='14' fill='white' fill-opacity='0.9'/%3E%3C/svg%3E">
+    <script>
+        try {
+            const storedTheme = localStorage.getItem('imgtools-theme');
+            const scheme = (storedTheme === 'dark' || storedTheme === 'light') ? storedTheme : 'light dark';
+            const meta = document.querySelector('meta[name="color-scheme"]');
+            if (meta) meta.content = scheme;
+            const preferDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', preferDark);
+        } catch (e) {}
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,6 +33,15 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            color-scheme: light dark;
+        }
+        :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+            color-scheme: dark;
+        }
+        :root:has(> head > meta[name="color-scheme"][content="light"]) {
+            color-scheme: light;
+        }
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
         .canvas-bg {
             background-color: #f3f4f6;
@@ -41,16 +61,23 @@
             height: 100%;
             position: relative;
         }
-        canvas {
+        #canvasStage {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #canvas {
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             border: 4px solid #e0e7ff;
             background-color: white;
+            touch-action: none;
         }
-        .dark canvas {
+        .dark #canvas {
             border-color: #3730a3;
             background-color: #000;
         }
-        canvas.canvas-checkerboard {
+        #canvas.canvas-checkerboard {
             background-color: #ffffff;
             background-image:
                 linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
@@ -60,7 +87,7 @@
             background-size: 16px 16px;
             background-position: 0 0, 0 8px, 8px -8px, -8px 0;
         }
-        .dark canvas.canvas-checkerboard {
+        .dark #canvas.canvas-checkerboard {
             background-color: #1e293b;
             background-image:
                 linear-gradient(45deg, #334155 25%, transparent 25%),
@@ -68,8 +95,25 @@
                 linear-gradient(45deg, transparent 75%, #334155 75%),
                 linear-gradient(-45deg, transparent 75%, #334155 75%);
         }
-        canvas:hover { cursor: grab; }
-        canvas:active { cursor: grabbing; }
+        #canvas:hover { cursor: grab; }
+        #canvas:active { cursor: grabbing; }
+        #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 4px solid transparent;
+            background: transparent;
+            pointer-events: none;
+        }
+        dialog:modal {
+            overscroll-behavior: contain;
+        }
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            overflow: hidden;
+            overscroll-behavior: contain;
+        }
         
         .guide-line {
             position: absolute;
@@ -145,30 +189,34 @@
 <!-- Encabezado -->
 <header class="bg-white dark:bg-darkPanel shadow-sm border-b dark:border-gray-700 px-6 py-2 flex items-center justify-between">
     <div class="flex items-center gap-4">
-        <svg width="180" height="50" viewBox="0 0 250 80" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto">
-            <defs>
-                <linearGradient id="gradLogo" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#818cf8;stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <rect x="10" y="15" width="50" height="50" rx="12" fill="url(#gradLogo)" />
-            <circle cx="35" cy="40" r="12" fill="white" fill-opacity="0.2" stroke="white" stroke-width="2.5" />
-            <path d="M22 28 V22 H27 M43 28 V22 H38 M22 52 V58 H27 M43 52 V58 H38" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" />
-            <text x="75" y="55" font-family="Inter, sans-serif" font-weight="bold" font-size="42" fill="currentColor" class="text-indigo-600 dark:text-indigo-400">ImgTools</text>
-        </svg>
+        <div class="flex items-center gap-3">
+            <svg width="40" height="40" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="w-10 h-10 shrink-0 shadow-sm rounded-[9px]">
+                <defs>
+                    <linearGradient id="gradLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4f46e5" />
+                        <stop offset="55%" stop-color="#6366f1" />
+                        <stop offset="100%" stop-color="#818cf8" />
+                    </linearGradient>
+                </defs>
+                <rect width="512" height="512" rx="112" fill="url(#gradLogo)" />
+                <path d="M112 188 V112 H188 M400 188 V112 H324 M112 324 V400 H188 M400 324 V400 H324" fill="none" stroke="white" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="256" cy="256" r="76" fill="white" fill-opacity="0.18" stroke="white" stroke-width="32" />
+                <circle cx="282" cy="230" r="14" fill="white" fill-opacity="0.9" />
+            </svg>
+            <h1 class="text-2xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400 leading-none select-none">ImgTools</h1>
+        </div>
         <div class="hidden sm:block border-l dark:border-gray-700 pl-4">
             <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Editor de imágenes</p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Optimización instantánea</p>
         </div>
     </div>
     <div class="flex items-center gap-3">
-        <button type="button" id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-            <svg id="sunIcon" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
-            <svg id="moonIcon" class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        <button type="button" id="themeToggle" aria-label="Cambiar a tema oscuro" title="Cambiar tema claro/oscuro" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <svg id="sunIcon" aria-hidden="true" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            <svg id="moonIcon" aria-hidden="true" class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
         </button>
-        <button type="button" id="infoBtn" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <button type="button" id="infoBtn" aria-label="Acerca de ImgTools" title="Acerca de ImgTools" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
+            <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </button>
     </div>
 </header>
@@ -242,51 +290,66 @@
                     </div>
                     
                     <div class="space-y-1">
-                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Porcentaje central que mantiene la proporción original intacta. La distorsión se reparte progresivamente hacia los extremos.">
-                            <span>Zona segura</span>
-                            <span id="enlSafeVal" class="text-indigo-600 dark:text-indigo-400 font-bold">30%</span>
-                        </label>
+                        <div class="flex justify-between items-center text-[10px] text-gray-600 dark:text-gray-400">
+                            <label for="enlSafe" class="cursor-help" title="Porcentaje central que mantiene la proporción original intacta. La distorsión se reparte progresivamente hacia los extremos.">Zona segura</label>
+                            <span class="flex items-center gap-1">
+                                <span id="enlSafeVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">30%</span>
+                                <input type="number" id="enlSafeInput" aria-label="Zona segura en porcentaje" class="hidden quick-input" min="0" max="80" step="1">
+                            </span>
+                        </div>
                         <input type="range" id="enlSafe" min="0" max="80" value="30" class="w-full h-1.5 accent-indigo-600">
                     </div>
 
                     <div id="enlBiasXContainer" class="space-y-1">
-                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Ajusta la posición horizontal de la zona segura">
-                            <span>Desplazamiento (An)</span>
-                            <span id="enlBiasXVal" class="text-indigo-600 dark:text-indigo-400 font-bold">0%</span>
-                        </label>
+                        <div class="flex justify-between items-center text-[10px] text-gray-600 dark:text-gray-400">
+                            <label for="enlBiasX" class="cursor-help" title="Ajusta la posición horizontal de la zona segura">Desplazamiento (An)</label>
+                            <span class="flex items-center gap-1">
+                                <span id="enlBiasXVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0%</span>
+                                <input type="number" id="enlBiasXInput" aria-label="Desplazamiento horizontal en porcentaje" class="hidden quick-input" min="-50" max="50" step="1">
+                            </span>
+                        </div>
                         <input type="range" id="enlBiasX" min="-50" max="50" value="0" class="w-full h-1.5 accent-indigo-600">
                     </div>
 
                     <div id="enlBiasYContainer" class="hidden space-y-1">
-                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Ajusta la posición vertical de la zona segura">
-                            <span>Desplazamiento (Al)</span>
-                            <span id="enlBiasYVal" class="text-indigo-600 dark:text-indigo-400 font-bold">0%</span>
-                        </label>
+                        <div class="flex justify-between items-center text-[10px] text-gray-600 dark:text-gray-400">
+                            <label for="enlBiasY" class="cursor-help" title="Ajusta la posición vertical de la zona segura">Desplazamiento (Al)</label>
+                            <span class="flex items-center gap-1">
+                                <span id="enlBiasYVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0%</span>
+                                <input type="number" id="enlBiasYInput" aria-label="Desplazamiento vertical en porcentaje" class="hidden quick-input" min="-50" max="50" step="1">
+                            </span>
+                        </div>
                         <input type="range" id="enlBiasY" min="-50" max="50" value="0" class="w-full h-1.5 accent-indigo-600">
                     </div>
 
                     <div class="space-y-1">
-                        <label class="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 cursor-help" title="Controla la curvatura del estiramiento. Un valor bajo reparte la distorsión; un valor alto la concentra en los extremos.">
-                            <span>Transición</span>
-                            <span id="enlPowerVal" class="text-indigo-600 dark:text-indigo-400 font-bold">2.0</span>
-                        </label>
+                        <div class="flex justify-between items-center text-[10px] text-gray-600 dark:text-gray-400">
+                            <label for="enlPower" class="cursor-help" title="Controla la curvatura del estiramiento. Un valor bajo reparte la distorsión; un valor alto la concentra en los extremos.">Transición</label>
+                            <span class="flex items-center gap-1">
+                                <span id="enlPowerVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">2.0</span>
+                                <input type="number" id="enlPowerInput" aria-label="Transición ANL" class="hidden quick-input" min="1" max="4" step="0.1">
+                            </span>
+                        </div>
                         <input type="range" id="enlPower" min="1" max="4" step="0.1" value="2" class="w-full h-1.5 accent-indigo-600">
                     </div>
                 </div>
             </div>
 
             <div class="space-y-2">
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 font-medium">
-                    <span>Zoom</span>
-                    <span id="zoomVal" class="text-indigo-600 dark:text-indigo-400 font-bold">100%</span>
-                </label>
+                <div class="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    <label for="zoom">Zoom</label>
+                    <span class="flex items-center gap-1">
+                        <span id="zoomVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">100%</span>
+                        <input type="number" id="zoomInput" aria-label="Zoom en porcentaje" class="hidden quick-input" min="10" max="500" step="1">
+                    </span>
+                </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" id="zoomOut" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                    <button type="button" id="zoomOut" aria-label="Reducir zoom" title="Reducir zoom" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                     </button>
-                    <input type="range" id="zoom" min="0.1" max="5" step="0.05" value="1" class="flex-1 accent-indigo-600">
-                    <button type="button" id="zoomIn" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <input type="range" id="zoom" min="0.1" max="5" step="0.01" value="1" class="flex-1 accent-indigo-600">
+                    <button type="button" id="zoomIn" aria-label="Aumentar zoom" title="Aumentar zoom" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </button>
                 </div>
             </div>
@@ -302,24 +365,24 @@
             </div>
 
             <div>
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
-                    <span>Suavizado de borde</span>
+                <div class="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
+                    <label for="feather">Suavizado de borde</label>
                     <span class="flex items-center gap-1">
-                        <span id="featherLabel" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
-                        <input type="number" id="featherInput" class="hidden quick-input" min="0" step="1">
+                        <span id="featherLabel" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
+                        <input type="number" id="featherInput" aria-label="Suavizado de borde en píxeles" class="hidden quick-input" min="0" step="1">
                     </span>
-                </label>
+                </div>
                 <input type="range" id="feather" min="0" max="100" value="0" class="w-full accent-indigo-600">
             </div>
             
             <div id="radiusControl">
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
-                    <span>Radio de esquinas</span>
+                <div class="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
+                    <label for="radius">Radio de esquinas</label>
                     <span class="flex items-center gap-1">
-                        <span id="radiusLabel" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
-                        <input type="number" id="radiusInput" class="hidden quick-input" min="0" step="1">
+                        <span id="radiusLabel" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">0px</span>
+                        <input type="number" id="radiusInput" aria-label="Radio de esquinas en píxeles" class="hidden quick-input" min="0" step="1">
                     </span>
-                </label>
+                </div>
                 <input type="range" id="radius" min="0" max="100" value="0" class="w-full accent-indigo-600">
             </div>
         </section>
@@ -367,16 +430,19 @@
                 </div>
             </div>
 
-            <div>
-                <label class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
-                    <span>Calidad <span class="opacity-50 font-normal">(peso vs nitidez)</span></span>
-                    <span id="qualityVal" class="text-indigo-600 dark:text-indigo-400 font-bold">80%</span>
-                </label>
-                <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
+            <div id="qualityControl">
+                <div class="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
+                    <label for="quality">Calidad <span class="opacity-50 font-normal">(peso vs nitidez)</span></label>
+                    <span class="flex items-center gap-1">
+                        <span id="qualityVal" role="button" tabindex="0" title="Clic para escribir valor" class="text-indigo-600 dark:text-indigo-400 font-bold cursor-pointer hover:underline">80%</span>
+                        <input type="number" id="qualityInput" aria-label="Calidad en porcentaje" class="hidden quick-input" min="10" max="100" step="1">
+                    </span>
+                </div>
+                <input type="range" id="quality" min="0.1" max="1" step="0.01" value="0.8" class="w-full accent-indigo-600">
             </div>
 
             <button type="button" id="downloadBtn" disabled class="mt-4 w-full bg-indigo-600 dark:bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 0 02 2h12a2 2 0 0 02-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 0 02 2h12a2 2 0 0 02-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Descargar imagen
             </button>
             <button type="button" id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2 font-medium">Restablecer todos los ajustes</button>
@@ -396,29 +462,32 @@
                     <span id="savingsTag" class="hidden ml-1 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm">-0%</span>
                 </div>
             </div>
-            <span class="hidden md:inline italic opacity-70 normal-case">Rueda = Zoom | Arrastra = Encuadre <span class="not-italic font-bold text-indigo-500/80">(Mayús = Bloquear eje)</span></span>
+            <span class="hidden md:inline italic opacity-70 normal-case">Rueda / Pellizco = Zoom | Arrastra / Flechas = Encuadre <span class="not-italic font-bold text-indigo-500/80">(Mayús = Eje / ×10)</span> | Doble clic = Centrar</span>
         </div>
         <div id="canvasWrapper" class="flex-1 bg-white/30 dark:bg-black/20 border border-gray-200 dark:border-gray-800 rounded-lg shadow-inner">
             <div id="guideV" class="guide-line guide-v"></div>
             <div id="guideH" class="guide-line guide-h"></div>
-            <canvas id="canvas"></canvas>
+            <div id="canvasStage">
+                <canvas id="canvas"></canvas>
+                <canvas id="overlayCanvas" aria-hidden="true"></canvas>
+            </div>
         </div>
     </section>
 </main>
 
 <!-- Modal de Información -->
-<div id="infoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm text-gray-800 dark:text-gray-200">
-    <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-10 relative overflow-hidden text-gray-800 dark:text-gray-200">
-        <button type="button" id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+<dialog id="infoModal" closedby="any" aria-labelledby="infoModalTitle" class="m-auto p-0 bg-transparent border-0 max-w-2xl w-[calc(100%-2rem)] rounded-2xl shadow-2xl overflow-visible text-gray-800 dark:text-gray-200">
+    <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-2xl w-full p-6 md:p-10 relative overflow-hidden text-gray-800 dark:text-gray-200">
+        <button type="button" id="closeInfo" autofocus aria-label="Cerrar ventana de información" title="Cerrar (Esc)" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+            <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
         <div class="flex flex-col md:flex-row gap-8 items-start">
             <div class="hidden md:flex p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-full text-indigo-600 dark:text-indigo-400 shrink-0">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg aria-hidden="true" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div class="flex-1">
                 <header class="flex flex-wrap items-center justify-between gap-3">
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">ImgTools</h3>
+                    <h2 id="infoModalTitle" class="text-3xl font-bold text-gray-900 dark:text-white">ImgTools</h2>
                     <span id="app-version-badge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800"></span>
                 </header>
                 <div id="beta-channel-notice" class="hidden mt-4 p-3 rounded-xl bg-amber-50/90 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
@@ -437,14 +506,14 @@
                 <footer class="mt-10 pt-6 border-t dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500 dark:text-gray-400 font-medium">
                     <span>© 2026 Pablo Felip</span>
                     <div class="flex gap-6">
-                        <a href="https://github.com/pfelipm/imgtools" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.02-1.04-.032-2.037-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.362.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.627-5.373-12-12-12"/></svg>GitHub</a>
-                        <a href="https://www.linkedin.com/in/pfelipm/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>LinkedIn</a>
+                        <a href="https://github.com/pfelipm/imgtools" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105"><svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.02-1.04-.032-2.037-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.362.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.627-5.373-12-12-12"/></svg>GitHub</a>
+                        <a href="https://www.linkedin.com/in/pfelipm/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105"><svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>LinkedIn</a>
                     </div>
                 </footer>
             </div>
         </div>
     </div>
-</div>
+</dialog>
 
 <div id="validationAnnouncer" class="visually-hidden" aria-live="polite"></div>
 
@@ -502,6 +571,15 @@
         downloadBtn: document.getElementById('downloadBtn'),
         resetAllBtn: document.getElementById('resetAllBtn'),
         canvas: document.getElementById('canvas'),
+        overlayCanvas: document.getElementById('overlayCanvas'),
+        enlSafeInput: document.getElementById('enlSafeInput'),
+        enlBiasXInput: document.getElementById('enlBiasXInput'),
+        enlBiasYInput: document.getElementById('enlBiasYInput'),
+        enlPowerInput: document.getElementById('enlPowerInput'),
+        zoomInput: document.getElementById('zoomInput'),
+        qualityInput: document.getElementById('qualityInput'),
+        qualityControl: document.getElementById('qualityControl'),
+        colorSchemeMeta: document.querySelector('meta[name="color-scheme"]'),
         origRes: document.getElementById('origRes'),
         origSize: document.getElementById('origSize'),
         destRes: document.getElementById('destRes'),
@@ -520,23 +598,34 @@
     };
 
     const MAX_CANVAS_SIZE = 16384;
+    const THEME_STORAGE_KEY = 'imgtools-theme';
     const BALBINO_ENABLED_CLASS = "balbino-glow text-[10px] text-amber-900 dark:text-amber-200 font-bold px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-700 hover:brightness-105 transition-all flex items-center gap-1 shadow-sm";
     const BALBINO_DISABLED_CLASS = "text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm";
 
     const ctx = elements.canvas.getContext('2d');
+    const overlayCtx = elements.overlayCanvas.getContext('2d');
     const maskCanvas = document.createElement('canvas');
     const maskCtx = maskCanvas.getContext('2d');
+    const stepCanvasA = document.createElement('canvas');
+    const stepCanvasB = document.createElement('canvas');
+    let stepCache = { source: null, w: 0, h: 0, scaling: '', canvas: null };
     let image = null, originalFile = null;
+    let activeInputObjectUrl = null;
     let balbinoNoticeTimer = null;
     let balbinoShineTimer = null;
     let sizeCalcTimer = null;
     let sizeCalcSeq = 0;
     let canvasRenderVersion = 0;
+    let rafPending = false;
+    let rafId = 0;
     let latestOutputBlob = null;
     let validationAnnounceTimer = null;
+    const quickInputClosers = [];
+    let lastFrameMetrics = { outWidth: 0, outHeight: 0, startX: 0, startY: 0, imgDrawWidth: 0, imgDrawHeight: 0 };
     let state = { 
         zoom: 1, panX: 0, panY: 0, 
         isDragging: false, lastX: 0, lastY: 0, lockAxis: null,
+        isPinching: false, pinchLastDist: 0, pinchMidX: 0, pinchMidY: 0,
         enlActive: false,
         enlAxis: 'x', // 'x' o 'y'
         enlShowGuides: false,
@@ -735,7 +824,6 @@
             elements.savingsTag.classList.add('hidden');
             return;
         }
-        if (state.enlShowGuides) return;
         elements.destSize.textContent = '…';
         const targetVersion = canvasRenderVersion;
         sizeCalcTimer = setTimeout(() => {
@@ -749,35 +837,62 @@
         }, 250);
     }
 
+    function invalidateStepCache() {
+        stepCache = { source: null, w: 0, h: 0, scaling: '', canvas: null };
+    }
+
+    function closeAllQuickInputs() {
+        quickInputClosers.forEach(closeFn => closeFn(false));
+    }
+
+    function loadImageFile(file) {
+        if (!file) return;
+        if (activeInputObjectUrl) {
+            URL.revokeObjectURL(activeInputObjectUrl);
+            activeInputObjectUrl = null;
+        }
+        const objectUrl = URL.createObjectURL(file);
+        activeInputObjectUrl = objectUrl;
+        const img = new Image();
+        const revokeCurrentUrl = () => {
+            if (activeInputObjectUrl === objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                activeInputObjectUrl = null;
+            }
+        };
+        img.onload = () => {
+            revokeCurrentUrl();
+            invalidateStepCache();
+            originalFile = file;
+            image = img;
+            elements.fileName.textContent = file.name;
+            elements.downloadBtn.disabled = false;
+            elements.balbinoMode.disabled = false;
+            elements.balbinoMode.className = BALBINO_ENABLED_CLASS;
+
+            // Activar secciones de control
+            [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.remove('section-disabled'));
+
+            elements.origRes.textContent = `Origen: ${img.width} x ${img.height} px`;
+            elements.origSize.textContent = formatBytes(file.size);
+            elements.destSize.textContent = '-';
+            elements.savingsTag.classList.add('hidden');
+
+            // Resetear todo al cargar nueva imagen (encuadre, efectos, etc)
+            factoryReset();
+            flushCanvasRender();
+            triggerBalbinoShine();
+        };
+        img.onerror = () => {
+            revokeCurrentUrl();
+        };
+        img.src = objectUrl;
+    }
+
     elements.fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
-        originalFile = file;
-        elements.fileName.textContent = file.name;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                image = img;
-                elements.downloadBtn.disabled = false;
-                elements.balbinoMode.disabled = false;
-                elements.balbinoMode.className = BALBINO_ENABLED_CLASS;
-                
-                // Activar secciones de control
-                [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.remove('section-disabled'));
-                
-                elements.origRes.textContent = `Origen: ${img.width} x ${img.height} px`;
-                elements.origSize.textContent = formatBytes(file.size);
-                elements.destSize.textContent = '-';
-                elements.savingsTag.classList.add('hidden');
-                
-                // Resetear todo al cargar nueva imagen (encuadre, efectos, etc)
-                factoryReset();
-                triggerBalbinoShine();
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+        loadImageFile(file);
         this.value = null;
     });
 
@@ -785,9 +900,11 @@
         state.zoom = 1; state.panX = 0; state.panY = 0;
         elements.zoom.value = 1;
         updateUI();
+        updateCanvas();
     }
 
     function factoryReset() {
+        closeAllQuickInputs();
         clearTimeout(balbinoNoticeTimer);
         elements.balbinoNotice.classList.add('hidden');
         state.zoom = 1; state.panX = 0; state.panY = 0;
@@ -811,11 +928,13 @@
         elements.scalingMethod.value = 'high'; elements.quality.value = 0.8;
         
         if (!image) {
+            invalidateStepCache();
             elements.balbinoMode.disabled = true;
             elements.balbinoMode.className = BALBINO_DISABLED_CLASS;
             elements.canvas.classList.remove('canvas-checkerboard');
             [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.add('section-disabled'));
             resetOutputSizeUI();
+            clearOverlayGuides();
         } else {
             elements.balbinoMode.disabled = false;
             elements.balbinoMode.className = BALBINO_ENABLED_CLASS;
@@ -975,8 +1094,10 @@
         elements.radius.disabled = isCircle;
 
         const isPng = elements.outFormat.value === 'image/png';
-        elements.quality.parentElement.style.opacity = isPng ? '0.5' : '1';
+        (elements.qualityControl || elements.quality.parentElement).style.opacity = isPng ? '0.5' : '1';
         elements.quality.disabled = isPng;
+        elements.qualityVal.classList.toggle('cursor-not-allowed', isPng);
+        elements.qualityVal.classList.toggle('cursor-pointer', !isPng);
     }
 
     function drawPath(c, w, h, r, isCircle, x = 0, y = 0) {
@@ -998,22 +1119,105 @@
         c.closePath();
     }
 
-    function drawENLGuidesRect(x, y, w, h) {
-        ctx.save();
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.strokeRect(x, y, w, h);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#4ade80';
-        ctx.setLineDash([8, 4]);
-        ctx.strokeRect(x, y, w, h);
-        ctx.restore();
+    function drawENLGuidesRect(targetCtx, x, y, w, h) {
+        targetCtx.save();
+        targetCtx.lineWidth = 4;
+        targetCtx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+        targetCtx.strokeRect(x, y, w, h);
+        targetCtx.lineWidth = 2;
+        targetCtx.strokeStyle = '#4ade80';
+        targetCtx.setLineDash([8, 4]);
+        targetCtx.strokeRect(x, y, w, h);
+        targetCtx.restore();
     }
 
-    function updateCanvas() {
-        if (!image) return;
+    function clearOverlayGuides() {
+        const w = elements.overlayCanvas.width || 0;
+        const h = elements.overlayCanvas.height || 0;
+        if (w > 0 && h > 0) {
+            overlayCtx.clearRect(0, 0, w, h);
+        }
+    }
+
+    function updateOverlayGuides() {
+        const { outWidth, outHeight, startX, startY, imgDrawWidth, imgDrawHeight } = lastFrameMetrics;
+        if (!image || outWidth <= 0 || outHeight <= 0) {
+            clearOverlayGuides();
+            return;
+        }
+        if (elements.overlayCanvas.width !== outWidth) elements.overlayCanvas.width = outWidth;
+        if (elements.overlayCanvas.height !== outHeight) elements.overlayCanvas.height = outHeight;
+        elements.overlayCanvas.style.width = elements.canvas.style.width;
+        elements.overlayCanvas.style.height = elements.canvas.style.height;
+        overlayCtx.clearRect(0, 0, outWidth, outHeight);
+
+        if (!state.enlActive || !state.enlShowGuides) return;
+        const safe = parseFloat(elements.enlSafe.value);
+        if (state.enlAxis === 'x') {
+            const biasX = parseFloat(elements.enlBiasX.value);
+            const safeW = imgDrawWidth * (safe / 100);
+            const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
+            drawENLGuidesRect(overlayCtx, safeX, startY, safeW, imgDrawHeight);
+        } else {
+            const biasY = parseFloat(elements.enlBiasY.value);
+            const safeH = imgDrawHeight * (safe / 100);
+            const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
+            drawENLGuidesRect(overlayCtx, startX, safeY, imgDrawWidth, safeH);
+        }
+    }
+
+    function getSteppedDownSource(source, targetW, targetH, scaling) {
+        if (!source || scaling === 'pixel') return source;
+        const minW = Math.max(1, Math.ceil(targetW));
+        const minH = Math.max(1, Math.ceil(targetH));
+        if (source.width * 0.5 < minW || source.height * 0.5 < minH) return source;
+
+        let curW = source.width;
+        let curH = source.height;
+        while (curW * 0.5 >= minW && curH * 0.5 >= minH) {
+            curW = Math.round(curW * 0.5);
+            curH = Math.round(curH * 0.5);
+        }
+        if (curW === source.width && curH === source.height) return source;
+
+        if (stepCache.source === source && stepCache.w === curW && stepCache.h === curH && stepCache.scaling === scaling && stepCache.canvas) {
+            return stepCache.canvas;
+        }
+
+        let src = source;
+        let w = source.width;
+        let h = source.height;
+        let useA = true;
+        while (w > curW && h > curH) {
+            const nextW = Math.max(curW, Math.round(w * 0.5));
+            const nextH = Math.max(curH, Math.round(h * 0.5));
+            const destCanvas = useA ? stepCanvasA : stepCanvasB;
+            destCanvas.width = nextW;
+            destCanvas.height = nextH;
+            const dctx = destCanvas.getContext('2d');
+            dctx.clearRect(0, 0, nextW, nextH);
+            dctx.imageSmoothingEnabled = true;
+            dctx.imageSmoothingQuality = scaling;
+            dctx.drawImage(src, 0, 0, w, h, 0, 0, nextW, nextH);
+            src = destCanvas;
+            w = nextW;
+            h = nextH;
+            useA = !useA;
+            if (nextW === curW && nextH === curH) break;
+        }
+        stepCache = { source, w: curW, h: curH, scaling, canvas: src };
+        return src;
+    }
+
+    function renderCanvasNow() {
+        if (!image) {
+            clearOverlayGuides();
+            return;
+        }
         const { outWidth, outHeight } = calculateDimensions();
         if (outWidth <= 0 || outHeight <= 0) {
+            lastFrameMetrics = { outWidth: 0, outHeight: 0, startX: 0, startY: 0, imgDrawWidth: 0, imgDrawHeight: 0 };
+            clearOverlayGuides();
             resetOutputSizeUI();
             return;
         }
@@ -1060,6 +1264,7 @@
         }
 
         const startX = (outWidth - imgDrawWidth) / 2 + state.panX, startY = (outHeight - imgDrawHeight) / 2 + state.panY;
+        lastFrameMetrics = { outWidth, outHeight, startX, startY, imgDrawWidth, imgDrawHeight };
         
         ctx.save();
         drawPath(ctx, outWidth, outHeight, borderRadius, isCircle);
@@ -1076,28 +1281,35 @@
             if (useX) {
                 const vScale = imgDrawHeight / image.height;
                 const slicesX = getNLSSlices(numSlices, image.width, imgDrawWidth, safe, biasX, vScale, power);
+                const maxSliceScaleX = slicesX.reduce((m, s) => Math.max(m, s.targetSize / s.size), 0);
+                const drawSource = getSteppedDownSource(image, image.width * maxSliceScaleX, imgDrawHeight, scaling);
+                const srcScaleX = drawSource.width / image.width;
                 slicesX.forEach(sx => {
                     const x0 = Math.round(startX + sx.targetStart);
                     const x1 = Math.round(startX + sx.targetStart + sx.targetSize);
                     const drawW = x1 - x0;
                     if (drawW > 0) {
-                        ctx.drawImage(image, sx.start, 0, sx.size, image.height, x0, startY, drawW, imgDrawHeight);
+                        ctx.drawImage(drawSource, sx.start * srcScaleX, 0, sx.size * srcScaleX, drawSource.height, x0, startY, drawW, imgDrawHeight);
                     }
                 });
             } else {
                 const hScale = imgDrawWidth / image.width;
                 const slicesY = getNLSSlices(numSlices, image.height, imgDrawHeight, safe, biasY, hScale, power);
+                const maxSliceScaleY = slicesY.reduce((m, s) => Math.max(m, s.targetSize / s.size), 0);
+                const drawSource = getSteppedDownSource(image, imgDrawWidth, image.height * maxSliceScaleY, scaling);
+                const srcScaleY = drawSource.height / image.height;
                 slicesY.forEach(sy => {
                     const y0 = Math.round(startY + sy.targetStart);
                     const y1 = Math.round(startY + sy.targetStart + sy.targetSize);
                     const drawH = y1 - y0;
                     if (drawH > 0) {
-                        ctx.drawImage(image, 0, sy.start, image.width, sy.size, startX, y0, imgDrawWidth, drawH);
+                        ctx.drawImage(drawSource, 0, sy.start * srcScaleY, drawSource.width, sy.size * srcScaleY, startX, y0, imgDrawWidth, drawH);
                     }
                 });
             }
         } else {
-            ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
+            const drawSource = getSteppedDownSource(image, imgDrawWidth, imgDrawHeight, scaling);
+            ctx.drawImage(drawSource, startX, startY, imgDrawWidth, imgDrawHeight);
         }
         ctx.restore();
 
@@ -1132,23 +1344,28 @@
             ctx.restore();
         }
 
-        // Dibujar guías temporales ANL tras los efectos para mantenerlas nítidas en vista previa
-        if (state.enlActive && state.enlShowGuides) {
-            const safe = parseFloat(elements.enlSafe.value);
-            if (state.enlAxis === 'x') {
-                const biasX = parseFloat(elements.enlBiasX.value);
-                const safeW = imgDrawWidth * (safe / 100);
-                const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
-                drawENLGuidesRect(safeX, startY, safeW, imgDrawHeight);
-            } else {
-                const biasY = parseFloat(elements.enlBiasY.value);
-                const safeH = imgDrawHeight * (safe / 100);
-                const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
-                drawENLGuidesRect(startX, safeY, imgDrawWidth, safeH);
-            }
-        }
-
+        updateOverlayGuides();
         scheduleOutputSizeUpdate();
+    }
+
+    function flushCanvasRender() {
+        if (!rafPending) return;
+        cancelAnimationFrame(rafId);
+        rafPending = false;
+        renderCanvasNow();
+    }
+
+    function updateCanvas() {
+        if (!image) {
+            clearOverlayGuides();
+            return;
+        }
+        if (rafPending) return;
+        rafPending = true;
+        rafId = requestAnimationFrame(() => {
+            rafPending = false;
+            renderCanvasNow();
+        });
     }
 
     function updateGuides(e) {
@@ -1175,37 +1392,124 @@
         }
     }
 
-    function setupQuickInput(labelEl, inputEl, sliderEl) {
-        labelEl.addEventListener('click', () => {
-            labelEl.classList.add('hidden');
-            inputEl.classList.remove('hidden');
-            inputEl.value = sliderEl.value;
-            inputEl.focus();
-        });
-        inputEl.addEventListener('input', () => {
-            let val = parseInt(inputEl.value);
-            if (isNaN(val)) return;
-            val = Math.max(0, Math.min(sliderEl.max, val));
-            sliderEl.value = val;
-            updateUI(); updateCanvas();
-        });
-        const commit = () => {
+    function setupQuickInput(labelEl, inputEl, sliderEl, opts = {}) {
+        const isFloat = Boolean(opts.isFloat);
+        const toInput = opts.toInput || (v => (isFloat ? parseFloat(v) : parseInt(v, 10)));
+        const fromInput = opts.fromInput || (v => v);
+        let isEditing = false;
+        let savedSliderVal = sliderEl.value;
+
+        const closeEditor = (restore) => {
+            if (!isEditing) return;
+            isEditing = false;
+            if (restore) {
+                sliderEl.value = savedSliderVal;
+                if (opts.onValue) opts.onValue(parseFloat(savedSliderVal));
+            }
             inputEl.classList.add('hidden');
             labelEl.classList.remove('hidden');
-            updateUI(); updateCanvas();
+            updateUI();
+            if (opts.isQualityOnly) {
+                canvasRenderVersion++;
+                scheduleOutputSizeUpdate();
+            } else {
+                updateCanvas();
+            }
         };
-        inputEl.addEventListener('blur', commit);
-        inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
+        quickInputClosers.push(closeEditor);
+
+        const openEditor = () => {
+            if (!image || isEditing || (opts.isDisabled && opts.isDisabled())) return;
+            isEditing = true;
+            savedSliderVal = sliderEl.value;
+            const minBound = opts.min !== undefined ? opts.min : toInput(sliderEl.min || 0);
+            const maxBound = opts.max !== undefined ? opts.max : toInput(sliderEl.max || 100);
+            inputEl.min = String(minBound);
+            inputEl.max = String(maxBound);
+            inputEl.step = String(opts.step !== undefined ? opts.step : (sliderEl.step || 1));
+            labelEl.classList.add('hidden');
+            inputEl.classList.remove('hidden');
+            inputEl.value = String(toInput(sliderEl.value));
+            inputEl.focus();
+            inputEl.select();
+        };
+
+        labelEl.addEventListener('click', openEditor);
+        labelEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openEditor();
+            }
+        });
+
+        inputEl.addEventListener('input', () => {
+            const raw = inputEl.value.trim();
+            if (raw === '' || raw === '-' || raw === '.' || raw === '-.') return;
+            const parsed = isFloat ? parseFloat(raw.replace(',', '.')) : parseInt(raw, 10);
+            if (!Number.isFinite(parsed)) return;
+            const minBound = opts.min !== undefined ? opts.min : toInput(sliderEl.min || 0);
+            const maxBound = opts.max !== undefined ? opts.max : toInput(sliderEl.max || 100);
+            const clamped = Math.max(minBound, Math.min(maxBound, parsed));
+            const sliderVal = fromInput(clamped);
+            sliderEl.value = sliderVal;
+            if (opts.onValue) opts.onValue(sliderVal);
+            updateUI();
+            if (opts.isQualityOnly) {
+                canvasRenderVersion++;
+                scheduleOutputSizeUpdate();
+            } else {
+                updateCanvas();
+            }
+        });
+
+        inputEl.addEventListener('blur', () => closeEditor(false));
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                closeEditor(false);
+                labelEl.focus();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeEditor(true);
+                labelEl.focus();
+            }
+        });
     }
 
     setupQuickInput(elements.featherLabel, elements.featherInput, elements.feather);
     setupQuickInput(elements.radiusLabel, elements.radiusInput, elements.radius);
+    setupQuickInput(elements.zoomVal, elements.zoomInput, elements.zoom, {
+        min: 10,
+        max: 500,
+        step: 1,
+        toInput: () => Math.round(state.zoom * 100),
+        fromInput: v => v / 100,
+        onValue: v => { state.zoom = v; }
+    });
+    setupQuickInput(elements.qualityVal, elements.qualityInput, elements.quality, {
+        min: 10,
+        max: 100,
+        step: 1,
+        toInput: v => Math.round(parseFloat(v) * 100),
+        fromInput: v => v / 100,
+        isDisabled: () => elements.quality.disabled,
+        isQualityOnly: true
+    });
+    setupQuickInput(elements.enlSafeVal, elements.enlSafeInput, elements.enlSafe, { min: 0, max: 80, step: 1 });
+    setupQuickInput(elements.enlBiasXVal, elements.enlBiasXInput, elements.enlBiasX, { min: -50, max: 50, step: 1 });
+    setupQuickInput(elements.enlBiasYVal, elements.enlBiasYInput, elements.enlBiasY, { min: -50, max: 50, step: 1 });
+    setupQuickInput(elements.enlPowerVal, elements.enlPowerInput, elements.enlPower, {
+        min: 1,
+        max: 4,
+        step: 0.1,
+        isFloat: true,
+        toInput: v => Number(parseFloat(v).toFixed(1)),
+        fromInput: v => v
+    });
 
     [elements.feather, elements.radius].forEach(slider => {
         slider.addEventListener('input', () => {
-            const isFeather = slider.id === 'feather';
-            const input = isFeather ? elements.featherInput : elements.radiusInput;
-            input.value = slider.value;
             updateUI(); updateCanvas();
         });
     });
@@ -1230,8 +1534,8 @@
         updateCanvas(); 
     });
     elements.zoom.addEventListener('input', (e) => { state.zoom = parseFloat(e.target.value); updateUI(); updateCanvas(); });
-    elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, state.zoom + 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
-    elements.zoomOut.addEventListener('click', () => { state.zoom = Math.max(0.1, state.zoom - 0.1); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
+    elements.zoomIn.addEventListener('click', () => { state.zoom = Math.min(5, Math.round((state.zoom + 0.1) * 100) / 100); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
+    elements.zoomOut.addEventListener('click', () => { state.zoom = Math.max(0.1, Math.round((state.zoom - 0.1) * 100) / 100); elements.zoom.value = state.zoom; updateUI(); updateCanvas(); });
     
     elements.fitCover.addEventListener('click', () => { 
         state.enlActive = false;
@@ -1284,22 +1588,24 @@
     });
 
     [elements.enlSafe, elements.enlBiasX, elements.enlBiasY, elements.enlPower].forEach(el => {
-        const show = () => { state.enlShowGuides = true; updateCanvas(); };
+        const show = () => { state.enlShowGuides = true; updateOverlayGuides(); };
         el.addEventListener('mousedown', show);
-        el.addEventListener('touchstart', show, {passive: true});
+        el.addEventListener('touchstart', show, { passive: true });
     });
 
-    const hideENLGuides = () => { if (state.enlShowGuides) { state.enlShowGuides = false; updateCanvas(); } };
+    const hideENLGuides = () => { if (state.enlShowGuides) { state.enlShowGuides = false; updateOverlayGuides(); } };
     window.addEventListener('mouseup', hideENLGuides);
     window.addEventListener('touchend', hideENLGuides);
+    window.addEventListener('touchcancel', hideENLGuides);
 
-    elements.enlSafe.addEventListener('input', (e) => { elements.enlSafeVal.textContent = e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlBiasX.addEventListener('input', (e) => { elements.enlBiasXVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlBiasY.addEventListener('input', (e) => { elements.enlBiasYVal.textContent = (e.target.value > 0 ? '+' : '') + e.target.value + '%'; updateUI(); updateCanvas(); });
-    elements.enlPower.addEventListener('input', (e) => { elements.enlPowerVal.textContent = parseFloat(e.target.value).toFixed(1); updateUI(); updateCanvas(); });
+    elements.enlSafe.addEventListener('input', () => { updateUI(); updateCanvas(); });
+    elements.enlBiasX.addEventListener('input', () => { updateUI(); updateCanvas(); });
+    elements.enlBiasY.addEventListener('input', () => { updateUI(); updateCanvas(); });
+    elements.enlPower.addEventListener('input', () => { updateUI(); updateCanvas(); });
 
     elements.balbinoMode.addEventListener('click', () => {
         if (!image) return;
+        closeAllQuickInputs();
         state.enlActive = false;
         state.enlShowGuides = false;
         state.stretchActive = false;
@@ -1327,19 +1633,42 @@
     });
 
     elements.outFormat.addEventListener('change', () => { updateUI(); updateCanvas(); });
-    elements.quality.addEventListener('input', () => { canvasRenderVersion++; updateUI(); scheduleOutputSizeUpdate(); });
+    elements.quality.addEventListener('input', () => { flushCanvasRender(); canvasRenderVersion++; updateUI(); scheduleOutputSizeUpdate(); });
     elements.quickSizeBtns.forEach(btn => btn.addEventListener('click', () => { elements.exportAnchor.value = 'height'; elements.exportSize.value = btn.dataset.size; updateUI(); updateCanvas(); }));
 
+    function zoomAtClientPoint(newZoom, clientX, clientY) {
+        const clampedZoom = Math.max(0.1, Math.min(5, newZoom));
+        if (!image || clampedZoom === state.zoom || elements.canvas.clientWidth <= 0 || elements.canvas.clientHeight <= 0) return;
+        const rect = elements.canvas.getBoundingClientRect();
+        const cx = ((clientX - rect.left - elements.canvas.clientLeft) / elements.canvas.clientWidth) * elements.canvas.width;
+        const cy = ((clientY - rect.top - elements.canvas.clientTop) / elements.canvas.clientHeight) * elements.canvas.height;
+        const relX = cx - elements.canvas.width / 2;
+        const relY = cy - elements.canvas.height / 2;
+        const k = clampedZoom / state.zoom;
+        state.panX = relX - (relX - state.panX) * k;
+        state.panY = relY - (relY - state.panY) * k;
+        state.zoom = clampedZoom;
+        elements.zoom.value = state.zoom;
+        updateUI();
+        updateCanvas();
+    }
+
     elements.canvas.addEventListener('wheel', (e) => {
-        e.preventDefault(); const delta = -e.deltaY, factor = 0.001, newZoom = Math.max(0.1, Math.min(5, state.zoom + delta * factor));
-        if (newZoom !== state.zoom) { state.zoom = newZoom; elements.zoom.value = state.zoom; updateUI(); updateCanvas(); }
+        if (!image) return;
+        e.preventDefault();
+        const normDelta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 100 : e.deltaY;
+        const intensity = e.ctrlKey ? 0.006 : 0.0018;
+        zoomAtClientPoint(state.zoom * Math.exp(-normDelta * intensity), e.clientX, e.clientY);
     }, { passive: false });
+
+    elements.canvas.addEventListener('dblclick', () => { if (image) resetView(); });
 
     elements.canvas.addEventListener('mousedown', (e) => { state.isDragging = true; state.lastX = e.clientX; state.lastY = e.clientY; state.lockAxis = null; });
     window.addEventListener('mouseup', () => { state.isDragging = false; state.lockAxis = null; elements.guideV.style.display = 'none'; elements.guideH.style.display = 'none'; elements.canvasWrapper.style.cursor = 'grab'; });
     window.addEventListener('mousemove', (e) => {
         if (!state.isDragging || !image) return;
-        const rect = elements.canvas.getBoundingClientRect(), scaleX = elements.canvas.width / rect.width, scaleY = elements.canvas.height / rect.height;
+        const scaleX = elements.canvas.width / Math.max(1, elements.canvas.clientWidth);
+        const scaleY = elements.canvas.height / Math.max(1, elements.canvas.clientHeight);
         let dx = (e.clientX - state.lastX) * scaleX, dy = (e.clientY - state.lastY) * scaleY;
         if (e.shiftKey) {
             if (!state.lockAxis) { if (Math.abs(dx) > Math.abs(dy)) state.lockAxis = 'x'; else if (Math.abs(dy) > Math.abs(dx)) state.lockAxis = 'y'; }
@@ -1349,32 +1678,140 @@
         updateCanvas(); updateGuides(e);
     });
 
-    window.addEventListener('keydown', (e) => { if (e.key === 'Shift' && state.isDragging) updateGuides(e); });
+    function isEditableTarget(el) {
+        return Boolean(el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.isContentEditable));
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Shift' && state.isDragging) updateGuides(e);
+        if (e.isComposing || elements.infoModal.open) return;
+
+        const mod = e.ctrlKey || e.metaKey;
+        const lowerKey = e.key.toLowerCase();
+        if (mod && !e.altKey && lowerKey === 'o') {
+            e.preventDefault();
+            elements.fileInput.click();
+            return;
+        }
+        if (mod && !e.altKey && lowerKey === 's') {
+            e.preventDefault();
+            if (image && !elements.downloadBtn.disabled) elements.downloadBtn.click();
+            return;
+        }
+        if (!image || isEditableTarget(e.target)) return;
+
+        if ((mod && !e.altKey && e.key === '0') || (!mod && !e.altKey && e.key === '0')) {
+            e.preventDefault();
+            resetView();
+            return;
+        }
+        if (!mod && !e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+            e.preventDefault();
+            const step = e.shiftKey ? 10 : 1;
+            if (e.key === 'ArrowLeft') state.panX -= step;
+            else if (e.key === 'ArrowRight') state.panX += step;
+            else if (e.key === 'ArrowUp') state.panY -= step;
+            else if (e.key === 'ArrowDown') state.panY += step;
+            updateCanvas();
+        }
+    });
     window.addEventListener('keyup', (e) => { if (e.key === 'Shift') { state.lockAxis = null; updateGuides(e); } });
 
-    elements.canvas.addEventListener('touchstart', (e) => { if(e.touches.length === 1) { state.isDragging = true; state.lastX = e.touches[0].clientX; state.lastY = e.touches[0].clientY; } });
-    window.addEventListener('touchend', () => state.isDragging = false);
-    window.addEventListener('touchmove', (e) => {
-        if (!state.isDragging || !image || e.touches.length !== 1) return;
-        e.preventDefault();
-        const rect = elements.canvas.getBoundingClientRect(), scaleX = elements.canvas.width / rect.width, scaleY = elements.canvas.height / rect.height;
-        state.panX += (e.touches[0].clientX - state.lastX) * scaleX; state.panY += (e.touches[0].clientY - state.lastY) * scaleY;
-        state.lastX = e.touches[0].clientX; state.lastY = e.touches[0].clientY; updateCanvas();
+    elements.canvas.addEventListener('touchstart', (e) => {
+        if (!image) return;
+        if (e.touches.length === 1) {
+            state.isPinching = false;
+            state.isDragging = true;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            e.preventDefault();
+            state.isDragging = false;
+            state.isPinching = true;
+            const t0 = e.touches[0], t1 = e.touches[1];
+            state.pinchLastDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+            state.pinchMidX = (t0.clientX + t1.clientX) / 2;
+            state.pinchMidY = (t0.clientY + t1.clientY) / 2;
+        }
     }, { passive: false });
+
+    const endTouchInteraction = (e) => {
+        if (e.touches && e.touches.length === 1 && image) {
+            state.isPinching = false;
+            state.isDragging = true;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+        } else if (!e.touches || e.touches.length === 0) {
+            state.isDragging = false;
+            state.isPinching = false;
+            state.pinchLastDist = 0;
+        }
+    };
+    window.addEventListener('touchend', endTouchInteraction);
+    window.addEventListener('touchcancel', endTouchInteraction);
+
+    window.addEventListener('touchmove', (e) => {
+        if (!image) return;
+        if (state.isPinching && e.touches.length === 2) {
+            e.preventDefault();
+            const t0 = e.touches[0], t1 = e.touches[1];
+            const midX = (t0.clientX + t1.clientX) / 2;
+            const midY = (t0.clientY + t1.clientY) / 2;
+            const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+            const scaleX = elements.canvas.width / Math.max(1, elements.canvas.clientWidth);
+            const scaleY = elements.canvas.height / Math.max(1, elements.canvas.clientHeight);
+            state.panX += (midX - state.pinchMidX) * scaleX;
+            state.panY += (midY - state.pinchMidY) * scaleY;
+            if (state.pinchLastDist > 0 && dist > 0) {
+                zoomAtClientPoint(state.zoom * (dist / state.pinchLastDist), midX, midY);
+            } else {
+                updateCanvas();
+            }
+            state.pinchLastDist = dist;
+            state.pinchMidX = midX;
+            state.pinchMidY = midY;
+            return;
+        }
+        if (!state.isDragging || e.touches.length !== 1) return;
+        e.preventDefault();
+        const scaleX = elements.canvas.width / Math.max(1, elements.canvas.clientWidth);
+        const scaleY = elements.canvas.height / Math.max(1, elements.canvas.clientHeight);
+        state.panX += (e.touches[0].clientX - state.lastX) * scaleX;
+        state.panY += (e.touches[0].clientY - state.lastY) * scaleY;
+        state.lastX = e.touches[0].clientX;
+        state.lastY = e.touches[0].clientY;
+        updateCanvas();
+    }, { passive: false });
+
+    function buildExportFilename(format, outWidth, outHeight) {
+        const extMap = {
+            'image/jpeg': 'jpg',
+            'image/png': 'png',
+            'image/webp': 'webp',
+            'image/avif': 'avif'
+        };
+        const ext = extMap[format] || (format.split('/')[1] || 'png');
+        let baseName = (originalFile && originalFile.name) ? originalFile.name.replace(/\.[^/.]+$/, '') : 'imagen';
+        baseName = baseName.replace(/[<>:"/\\|?*\x00-\x1F]+/g, '_').replace(/^[.\s]+|[.\s]+$/g, '') || 'imagen';
+        return `${baseName}_${outWidth}x${outHeight}.${ext}`;
+    }
 
     elements.downloadBtn.addEventListener('click', () => {
         if (!image || !validateConfig({ showEmptyErrors: true, announce: true }).valid) return;
+        flushCanvasRender();
         if (state.enlShowGuides) {
             state.enlShowGuides = false;
-            updateCanvas();
+            updateOverlayGuides();
         }
         const format = elements.outFormat.value;
         const quality = parseFloat(elements.quality.value);
+        const outW = elements.canvas.width;
+        const outH = elements.canvas.height;
         const triggerBlobDownload = (blob) => {
             applyOutputSizeUI(blob.size);
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.download = `img_tools_${Date.now()}.${format.split('/')[1]}`;
+            link.download = buildExportFilename(format, outW, outH);
             link.href = url;
             link.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -1390,19 +1827,77 @@
 
     elements.resetAllBtn.addEventListener('click', factoryReset);
 
-    function setTheme(isDark) {
-        if (isDark) { document.documentElement.classList.add('dark'); elements.sunIcon.classList.remove('hidden'); elements.moonIcon.classList.add('hidden'); }
-        else { document.documentElement.classList.remove('dark'); elements.sunIcon.classList.add('hidden'); elements.moonIcon.classList.remove('hidden'); }
+    function getStoredTheme() {
+        try {
+            const val = localStorage.getItem(THEME_STORAGE_KEY);
+            return (val === 'dark' || val === 'light') ? val : null;
+        } catch (e) {
+            return null;
+        }
     }
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-    setTheme(systemDark.matches); systemDark.addEventListener('change', (e) => setTheme(e.matches));
-    elements.themeToggle.addEventListener('click', () => { setTheme(!document.documentElement.classList.contains('dark')); });
-    elements.infoBtn.addEventListener('click', () => elements.infoModal.classList.remove('hidden'));
-    elements.closeInfo.addEventListener('click', () => elements.infoModal.classList.add('hidden'));
-    elements.infoModal.addEventListener('click', (e) => { if(e.target === elements.infoModal) elements.infoModal.classList.add('hidden'); });
-    window.addEventListener('resize', () => { if(image) updateCanvas(); });
 
-    const APP_VERSION = 'v2.0.0-beta.2';
+    function setStoredTheme(val) {
+        try {
+            if (val === 'dark' || val === 'light') localStorage.setItem(THEME_STORAGE_KEY, val);
+            else localStorage.removeItem(THEME_STORAGE_KEY);
+        } catch (e) {}
+    }
+
+    function applyThemeState(isDark, schemeMetaValue) {
+        document.documentElement.classList.toggle('dark', isDark);
+        if (elements.colorSchemeMeta) elements.colorSchemeMeta.content = schemeMetaValue;
+        elements.sunIcon.classList.toggle('hidden', !isDark);
+        elements.moonIcon.classList.toggle('hidden', isDark);
+        elements.themeToggle.setAttribute('aria-label', isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    }
+
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncInitialTheme = () => {
+        const stored = getStoredTheme();
+        if (stored) applyThemeState(stored === 'dark', stored);
+        else applyThemeState(systemDark.matches, 'light dark');
+    };
+    syncInitialTheme();
+    systemDark.addEventListener('change', (e) => {
+        if (!getStoredTheme()) applyThemeState(e.matches, 'light dark');
+    });
+    window.addEventListener('storage', (e) => {
+        if (e.key === THEME_STORAGE_KEY) syncInitialTheme();
+    });
+    elements.themeToggle.addEventListener('click', () => {
+        const nextDark = !document.documentElement.classList.contains('dark');
+        if (nextDark === systemDark.matches) {
+            setStoredTheme(null);
+            applyThemeState(nextDark, 'light dark');
+        } else {
+            const scheme = nextDark ? 'dark' : 'light';
+            setStoredTheme(scheme);
+            applyThemeState(nextDark, scheme);
+        }
+    });
+
+    elements.infoBtn.addEventListener('click', () => {
+        if (!elements.infoModal.open) elements.infoModal.showModal();
+    });
+    elements.closeInfo.addEventListener('click', () => elements.infoModal.close());
+    elements.infoModal.addEventListener('close', () => { elements.infoModal.returnValue = ''; });
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const isOutsideDialog = (ev) => {
+            const r = elements.infoModal.getBoundingClientRect();
+            return ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom;
+        };
+        let pressedOutside = false;
+        elements.infoModal.addEventListener('pointerdown', (ev) => {
+            pressedOutside = isOutsideDialog(ev);
+        });
+        elements.infoModal.addEventListener('pointerup', (ev) => {
+            if (pressedOutside && isOutsideDialog(ev)) elements.infoModal.close();
+            pressedOutside = false;
+        });
+    }
+    window.addEventListener('resize', () => { if (image) updateCanvas(); });
+
+    const APP_VERSION = 'v2.0.0-beta.3';
     const APP_BUILD_DATE = '15/11/2026';
 
     const versionBadge = document.getElementById('app-version-badge');
