@@ -114,6 +114,11 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
   - Migrar `#infoModal` a `<dialog>` nativo (cierre automático con `Escape` y gestión de foco) e incorporar atajos de teclado globales no intrusivos: `Ctrl+O` (abrir), `Ctrl+S` (descargar), `0` / `Ctrl+0` (restablecer vista) y flechas para ajuste fino de `panX`/`panY` (`1 px`, `10 px` con `Mayús`).
   - Persistir en `localStorage` la preferencia de tema claro/oscuro cuando el usuario la conmute manualmente.
 
+- [x] **Ergonomía vertical del panel lateral, ventana PWA, animación de rotación 90° y barra superior estable** *(implementado en `v2.0.0-beta.6`)*
+  - **Diseño de dos columnas y primera apertura PWA:** Disposición en dos columnas desde `md:` (`>= 768 px`) con altura bloqueada al *viewport* (`height: 100dvh; overflow: hidden`) y redimensionado cortesano único en `localStorage['imgtools-pwa-sized']` al abrirse estrecha en `display-mode: standalone`.
+  - **Panel lateral colapsable y pie fijo:** Bloques nativos `<details>` / `<summary>` con animación de contenido e indicador de estado (`3. Efectos` plegado por defecto con píldora `Activo` si hay círculo, suavizado o radio activos; `2. Encuadre` y `4. Exportación` abiertos por defecto con resumen al plegarse), scroll interno fino (`scrollbar-width: thin` y alto contraste) en la zona central y pie fijo inferior (`#sidebarFooter`) con *Descargar*, *Copiar al portapapeles* y *Restablecer* siempre visibles.
+  - **Rotación 90° animada y métricas sin saltos:** Animación FLIP compositor-friendly mediante propiedades individuales (`rotate` y `scale`) sobre `#canvasStage` en giros de `90°` respetando `prefers-reduced-motion`, cifras tabulares (`tabular-nums`), anchos mínimos en pesos y botón `#compareBtn` (*Ver original*) anclado a la derecha junto con leyenda de atajos bajo el lienzo.
+
 ---
 
 ## 4. Rendimiento y Gestión de Memoria
@@ -142,7 +147,7 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
     1. Completadas las pruebas de `v2.0`, fusionar `v2.0` en `main` (**Release `v2.0.0`**), cambiar la fuente de GitHub Pages a `main` y añadir el archivo `CNAME` con `imgtools.pablofelip.online`.
     2. Apuntar el registro DNS `CNAME` del subdominio `imgtools` directamente a `pfelipm.github.io` y activar *Enforce HTTPS*, eliminando definitivamente las restricciones del `<iframe>` de Google Sites (`sandbox` en portapapeles, descargas, `localStorage` y registro de PWA) sin cambiar la URL pública.
 
-- [x] **Conversión en Progressive Web App (PWA) 100% *Offline*, fijado de versiones CDN y SRI** *(implementado en `v2.0.0-beta.5`; Tailwind v3.4.17 compilado en línea sin dependencias CDN externas; SRI se aplicará a `JSZip` si se incorpora en `beta.6`)*
+- [x] **Conversión en Progressive Web App (PWA) 100% *Offline*, fijado de versiones CDN y SRI** *(implementado en `v2.0.0-beta.5`; Tailwind v3.4.17 compilado en línea sin dependencias CDN externas; SRI o empaquetado local se aplicará a `.zip` en `beta.7`)*
   - **Ubicación:** `index.html` (Tailwind Play CDN en línea ~9, Google Fonts en línea ~23 y miniatura remota de Google Drive en `#infoModal`, línea ~390).
   - **Problema:** `README.md` (línea ~97) indica que descargar `index.html` permite usarlo en local sin dependencias, pero sin conexión a internet el script `https://cdn.tailwindcss.com` no carga y toda la maquetación se rompe (además de emitir aviso en consola por no estar pensado para producción).
   - **Solución propuesta (alineada con `v2.0` de *PDF Tools (SPA)*):**
