@@ -50,6 +50,24 @@
             border-color: #3730a3;
             background-color: #000;
         }
+        canvas.canvas-checkerboard {
+            background-color: #ffffff;
+            background-image:
+                linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+                linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+        }
+        .dark canvas.canvas-checkerboard {
+            background-color: #1e293b;
+            background-image:
+                linear-gradient(45deg, #334155 25%, transparent 25%),
+                linear-gradient(-45deg, #334155 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #334155 75%),
+                linear-gradient(-45deg, transparent 75%, #334155 75%);
+        }
         canvas:hover { cursor: grab; }
         canvas:active { cursor: grabbing; }
         
@@ -66,13 +84,36 @@
         .guide-active { opacity: 0.8; box-shadow: 0 0 8px #4f46e5; background-color: #6366f1; }
 
         @keyframes shine {
-            0% { background-position: -100px; }
-            100% { background-position: 200px; }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         .balbino-glow {
-            background: linear-gradient(90deg, #fef3c7 0%, #fbbf24 50%, #fef3c7 100%);
-            background-size: 200px 100%;
-            animation: shine 3s infinite linear;
+            background: linear-gradient(110deg, #fef3c7 25%, #fde68a 45%, #fbbf24 50%, #fde68a 55%, #fef3c7 75%);
+            background-size: 200% 100%;
+        }
+        .dark .balbino-glow {
+            background: linear-gradient(110deg, rgba(120, 53, 15, 0.55) 25%, rgba(180, 83, 9, 0.75) 45%, rgba(245, 158, 11, 0.85) 50%, rgba(180, 83, 9, 0.75) 55%, rgba(120, 53, 15, 0.55) 75%);
+            background-size: 200% 100%;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .balbino-glow:hover,
+            .balbino-glow:focus-visible {
+                animation: shine 2.2s linear infinite;
+            }
+            .balbino-glow.balbino-shine-once {
+                animation: shine 2.0s linear 2;
+            }
+        }
+        .visually-hidden {
+            position: absolute !important;
+            clip-path: inset(50%) !important;
+            overflow: hidden !important;
+            width: 1px !important;
+            height: 1px !important;
+            margin: -1px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            white-space: nowrap !important;
         }
         .quick-input {
             width: 60px;
@@ -122,11 +163,11 @@
         </div>
     </div>
     <div class="flex items-center gap-3">
-        <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        <button type="button" id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
             <svg id="sunIcon" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
             <svg id="moonIcon" class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
         </button>
-        <button id="infoBtn" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
+        <button type="button" id="infoBtn" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </button>
     </div>
@@ -149,25 +190,25 @@
         <section id="framingSection" class="space-y-3 section-disabled">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">2. Encuadre</h2>
-                <button id="balbinoMode" disabled class="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm">
+                <button type="button" id="balbinoMode" disabled class="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm">
                     🚀 Modo BalBino
                 </button>
             </div>
             
-            <div id="balbinoNotice" class="hidden text-[10px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-2 rounded border border-green-100 dark:border-green-900/40 animate-pulse font-medium text-center">
+            <div id="balbinoNotice" class="hidden text-[10px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-2 rounded border border-green-100 dark:border-green-900/40 motion-safe:animate-pulse font-medium text-center">
                 ¡Configuración GEG Spain aplicada! BalBino estará orgulloso.
             </div>
 
             <div class="space-y-2">
-                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Relación de aspecto</label>
+                <label for="aspectRatio" class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Relación de aspecto</label>
                 <select id="aspectRatio" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:text-gray-400">
                     <option value="free">Libre (original)</option>
-                    <option value="1">1:1 (Cuadrado / Avatar)</option>
-                    <option value="1.3333">4:3 (Estándar)</option>
-                    <option value="1.7777">16:9 (Panorámico)</option>
-                    <option value="1.6">16:10 (Monitor)</option>
-                    <option value="2.3333">21:9 (Ultrawide)</option>
-                    <option value="2.1">21:10</option>
+                    <option value="1:1">1:1 (Cuadrado / Avatar)</option>
+                    <option value="4:3">4:3 (Estándar)</option>
+                    <option value="16:9">16:9 (Panorámico)</option>
+                    <option value="16:10">16:10 (Monitor)</option>
+                    <option value="21:9">21:9 (Ultrawide)</option>
+                    <option value="21:10">21:10</option>
                 </select>
                 
                 <div class="flex items-center gap-2 pt-1">
@@ -176,20 +217,20 @@
                 </div>
                 
                 <div id="customRatioInputs" class="grid grid-cols-2 gap-2 hidden">
-                    <input type="number" id="customW" placeholder="Ancho" value="16" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
-                    <input type="number" id="customH" placeholder="Alto" value="9" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
-                    <p id="ratioError" class="col-span-2 text-[10px] text-red-500 hidden font-medium">Introduzca valores positivos</p>
+                    <input type="number" id="customW" aria-label="Ancho de la relación personalizada" placeholder="Ancho" value="16" min="1" step="any" aria-invalid="false" data-error="ratioError" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
+                    <input type="number" id="customH" aria-label="Alto de la relación personalizada" placeholder="Alto" value="9" min="1" step="any" aria-invalid="false" data-error="ratioError" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500">
+                    <p id="ratioError" class="col-span-2 text-[10px] text-red-500 hidden font-medium">Introduzca valores positivos mayores que 0</p>
                 </div>
             </div>
 
             <div class="space-y-1">
                 <label class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Ajuste rápido</label>
                 <div class="grid grid-cols-3 gap-2">
-                    <button id="fitCover" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Llenar</button>
-                    <button id="fitContain" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Contener</button>
-                    <button id="fitStretch" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Estirar</button>
+                    <button type="button" id="fitCover" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Llenar</button>
+                    <button type="button" id="fitContain" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Contener</button>
+                    <button type="button" id="fitStretch" class="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">Estirar</button>
                 </div>
-                <button id="fitENL" class="mt-2 w-full text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center justify-center gap-1">
+                <button type="button" id="fitENL" class="mt-2 w-full text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 py-2 rounded border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center justify-center gap-1">
                     Adaptar (no lineal)
                 </button>
 
@@ -240,11 +281,11 @@
                     <span id="zoomVal" class="text-indigo-600 dark:text-indigo-400 font-bold">100%</span>
                 </label>
                 <div class="flex items-center gap-2">
-                    <button id="zoomOut" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                    <button type="button" id="zoomOut" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                     </button>
                     <input type="range" id="zoom" min="0.1" max="5" step="0.05" value="1" class="flex-1 accent-indigo-600">
-                    <button id="zoomIn" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                    <button type="button" id="zoomIn" class="p-1.5 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </button>
                 </div>
@@ -287,7 +328,7 @@
         <section id="exportSection" class="space-y-3 section-disabled">
             <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">4. Exportación</h2>
             <div class="space-y-2">
-                <label class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Escalar por</label>
+                <label for="exportAnchor" class="text-xs text-gray-600 dark:text-gray-400 block font-medium">Escalar por</label>
                 <div class="grid grid-cols-2 gap-2">
                     <select id="exportAnchor" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="height">Alto</option>
@@ -295,21 +336,21 @@
                         <option value="longest">Lado largo</option>
                         <option value="original">Sin escala</option>
                     </select>
-                    <input type="number" id="exportSize" value="1080" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500 disabled:bg-gray-50 dark:disabled:bg-gray-900">
+                    <input type="number" id="exportSize" aria-label="Tamaño de exportación en píxeles" value="1080" min="1" max="16384" step="1" aria-invalid="false" data-error="exportError" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm p-2 border focus:ring-indigo-500 disabled:bg-gray-50 dark:disabled:bg-gray-900">
                 </div>
                 <div id="quickSizes" class="grid grid-cols-5 gap-1">
-                    <button data-size="480" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">480</button>
-                    <button data-size="720" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">720</button>
-                    <button data-size="1080" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">1080</button>
-                    <button data-size="1440" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">2K</button>
-                    <button data-size="2160" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">4K</button>
+                    <button type="button" data-size="480" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">480</button>
+                    <button type="button" data-size="720" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">720</button>
+                    <button type="button" data-size="1080" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors">1080</button>
+                    <button type="button" data-size="1440" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">2K</button>
+                    <button type="button" data-size="2160" class="text-[10px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-1 rounded border dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors text-nowrap">4K</button>
                 </div>
-                <p id="exportError" class="text-[10px] text-red-500 hidden font-medium text-center mt-1">Introduzca un tamaño válido</p>
+                <p id="exportError" class="text-[10px] text-red-500 hidden font-medium text-center mt-1">Introduzca un tamaño entre 1 y 16384 px</p>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Formato</label>
+                    <label for="outFormat" class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Formato</label>
                     <select id="outFormat" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="image/png">PNG</option>
                         <option value="image/webp">WEBP</option>
@@ -317,7 +358,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Escalado</label>
+                    <label for="scalingMethod" class="text-xs text-gray-600 dark:text-gray-400 mb-1 block font-medium">Escalado</label>
                     <select id="scalingMethod" class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-indigo-500 p-2 border">
                         <option value="high">Suave (alta)</option>
                         <option value="medium">Suave (media)</option>
@@ -334,11 +375,11 @@
                 <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
             </div>
 
-            <button id="downloadBtn" disabled class="mt-4 w-full bg-indigo-600 dark:bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
+            <button type="button" id="downloadBtn" disabled class="mt-4 w-full bg-indigo-600 dark:bg-indigo-500 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 0 02 2h12a2 2 0 0 02-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Descargar imagen
             </button>
-            <button id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2 font-medium">Restablecer todos los ajustes</button>
+            <button type="button" id="resetAllBtn" class="w-full text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors underline mt-2 font-medium">Restablecer todos los ajustes</button>
         </section>
     </aside>
 
@@ -368,7 +409,7 @@
 <!-- Modal de Información -->
 <div id="infoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm text-gray-800 dark:text-gray-200">
     <div class="bg-white dark:bg-darkPanel rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-10 relative overflow-hidden text-gray-800 dark:text-gray-200">
-        <button id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+        <button type="button" id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
         <div class="flex flex-col md:flex-row gap-8 items-start">
@@ -404,6 +445,8 @@
         </div>
     </div>
 </div>
+
+<div id="validationAnnouncer" class="visually-hidden" aria-live="polite"></div>
 
 <script>
     const elements = {
@@ -472,11 +515,25 @@
         moonIcon: document.getElementById('moonIcon'),
         infoBtn: document.getElementById('infoBtn'),
         infoModal: document.getElementById('infoModal'),
-        closeInfo: document.getElementById('closeInfo')
+        closeInfo: document.getElementById('closeInfo'),
+        validationAnnouncer: document.getElementById('validationAnnouncer')
     };
 
+    const MAX_CANVAS_SIZE = 16384;
+    const BALBINO_ENABLED_CLASS = "balbino-glow text-[10px] text-amber-900 dark:text-amber-200 font-bold px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-700 hover:brightness-105 transition-all flex items-center gap-1 shadow-sm";
+    const BALBINO_DISABLED_CLASS = "text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm";
+
     const ctx = elements.canvas.getContext('2d');
+    const maskCanvas = document.createElement('canvas');
+    const maskCtx = maskCanvas.getContext('2d');
     let image = null, originalFile = null;
+    let balbinoNoticeTimer = null;
+    let balbinoShineTimer = null;
+    let sizeCalcTimer = null;
+    let sizeCalcSeq = 0;
+    let canvasRenderVersion = 0;
+    let latestOutputBlob = null;
+    let validationAnnounceTimer = null;
     let state = { 
         zoom: 1, panX: 0, panY: 0, 
         isDragging: false, lastX: 0, lastY: 0, lockAxis: null,
@@ -492,6 +549,206 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
+    function triggerBalbinoShine() {
+        const btn = elements.balbinoMode;
+        if (!btn || btn.disabled) return;
+        clearTimeout(balbinoShineTimer);
+        btn.classList.remove('balbino-shine-once');
+        void btn.offsetWidth;
+        btn.classList.add('balbino-shine-once');
+        const cleanup = () => {
+            btn.classList.remove('balbino-shine-once');
+            clearTimeout(balbinoShineTimer);
+        };
+        btn.addEventListener('animationend', cleanup, { once: true });
+        balbinoShineTimer = setTimeout(cleanup, 4100);
+    }
+
+    function parseRatioValue(val) {
+        if (val === 'free') return image ? (image.width / image.height) : 1;
+        if (typeof val === 'string' && val.includes(':')) {
+            const parts = val.split(':').map(Number);
+            if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) return parts[0] / parts[1];
+        }
+        const parsed = parseFloat(val);
+        return (Number.isFinite(parsed) && parsed > 0) ? parsed : 1;
+    }
+
+    function setFieldErrorState(inputEl, isInvalid, errorShown) {
+        if (!inputEl) return;
+        const flagged = Boolean(isInvalid && errorShown);
+        inputEl.setAttribute('aria-invalid', flagged ? 'true' : 'false');
+        inputEl.classList.toggle('border-red-500', flagged);
+        inputEl.classList.toggle('dark:border-red-500', flagged);
+        const errorId = inputEl.dataset.error;
+        if (!errorId) return;
+        const ids = (inputEl.getAttribute('aria-describedby') || '')
+            .split(/\s+/)
+            .filter(id => id && id !== errorId);
+        if (flagged) ids.push(errorId);
+        if (ids.length) inputEl.setAttribute('aria-describedby', ids.join(' '));
+        else inputEl.removeAttribute('aria-describedby');
+    }
+
+    function announceValidationMessage(msg) {
+        if (!elements.validationAnnouncer) return;
+        clearTimeout(validationAnnounceTimer);
+        elements.validationAnnouncer.textContent = '';
+        if (!msg) return;
+        validationAnnounceTimer = setTimeout(() => {
+            elements.validationAnnouncer.textContent = msg;
+        }, 500);
+    }
+
+    function computeRawDimensions(currentRatio, anchor, targetSize) {
+        let outWidth = 0, outHeight = 0;
+        if (anchor === 'original') { outHeight = image.height; outWidth = outHeight * currentRatio; }
+        else if (anchor === 'height') { outHeight = targetSize; outWidth = outHeight * currentRatio; }
+        else if (anchor === 'width') { outWidth = targetSize; outHeight = outWidth / currentRatio; }
+        else if (anchor === 'longest') {
+            if (currentRatio >= 1) { outWidth = targetSize; outHeight = outWidth / currentRatio; }
+            else { outHeight = targetSize; outWidth = outHeight * currentRatio; }
+        }
+        return { outWidth: Math.round(outWidth), outHeight: Math.round(outHeight) };
+    }
+
+    function validateConfig({ showEmptyErrors = false, announce = false } = {}) {
+        const defaultRatioMsg = 'Introduzca valores positivos mayores que 0';
+        const defaultExportMsg = `Introduzca un tamaño entre 1 y ${MAX_CANVAS_SIZE} px`;
+
+        let ratioValid = true;
+        let showRatioMsg = false;
+        let ratioMsg = defaultRatioMsg;
+        let wInvalid = false;
+        let hInvalid = false;
+
+        if (elements.customRatioToggle.checked) {
+            const wRaw = elements.customW.value.trim();
+            const hRaw = elements.customH.value.trim();
+            const cw = Number(wRaw);
+            const ch = Number(hRaw);
+            const wBad = Boolean(elements.customW.validity && elements.customW.validity.badInput);
+            const hBad = Boolean(elements.customH.validity && elements.customH.validity.badInput);
+            wInvalid = wBad || wRaw === '' || !Number.isFinite(cw) || cw <= 0;
+            hInvalid = hBad || hRaw === '' || !Number.isFinite(ch) || ch <= 0;
+            ratioValid = !(wInvalid || hInvalid);
+            if (!ratioValid) {
+                showRatioMsg = showEmptyErrors || (wRaw !== '' && wInvalid) || (hRaw !== '' && hInvalid) || wBad || hBad;
+            }
+        }
+
+        const anchor = elements.exportAnchor.value;
+        const sRaw = elements.exportSize.value.trim();
+        const sz = Number(sRaw);
+        const sBad = Boolean(elements.exportSize.validity && elements.exportSize.validity.badInput);
+
+        let exportValid = true;
+        let showExportMsg = false;
+        let exportMsg = defaultExportMsg;
+
+        if (anchor !== 'original') {
+            const sizeInvalid = sBad || sRaw === '' || !Number.isFinite(sz) || sz < 1 || sz > MAX_CANVAS_SIZE;
+            if (sizeInvalid) {
+                exportValid = false;
+                showExportMsg = showEmptyErrors || sRaw !== '' || sBad;
+            }
+        }
+
+        if (image && ratioValid && (anchor === 'original' || exportValid)) {
+            const ratio = elements.customRatioToggle.checked
+                ? (Number(elements.customW.value) / Number(elements.customH.value))
+                : parseRatioValue(elements.aspectRatio.value);
+            const { outWidth, outHeight } = computeRawDimensions(ratio, anchor, sz);
+            const dimTooSmall = !Number.isFinite(outWidth) || !Number.isFinite(outHeight) || outWidth < 1 || outHeight < 1;
+            const dimTooLarge = outWidth > MAX_CANVAS_SIZE || outHeight > MAX_CANVAS_SIZE;
+            if (dimTooSmall || dimTooLarge) {
+                const msg = dimTooSmall
+                    ? 'El lienzo resultante es menor de 1 px'
+                    : `El lienzo resultante supera el máximo permitido (${MAX_CANVAS_SIZE} px)`;
+                if (anchor === 'original' && elements.customRatioToggle.checked) {
+                    ratioValid = false;
+                    wInvalid = true;
+                    hInvalid = true;
+                    showRatioMsg = true;
+                    ratioMsg = msg;
+                } else {
+                    exportValid = false;
+                    showExportMsg = true;
+                    exportMsg = msg;
+                }
+            }
+        }
+
+        elements.ratioError.textContent = ratioMsg;
+        elements.ratioError.classList.toggle('hidden', !showRatioMsg);
+        setFieldErrorState(elements.customW, wInvalid, showRatioMsg);
+        setFieldErrorState(elements.customH, hInvalid, showRatioMsg);
+
+        elements.exportError.textContent = exportMsg;
+        elements.exportError.classList.toggle('hidden', !showExportMsg);
+        setFieldErrorState(elements.exportSize, !exportValid, showExportMsg);
+
+        if (announce) {
+            const msgs = [];
+            if (showRatioMsg) msgs.push(ratioMsg);
+            if (showExportMsg) msgs.push(exportMsg);
+            announceValidationMessage(msgs.join('. '));
+        }
+
+        return { valid: ratioValid && exportValid };
+    }
+
+    function resetOutputSizeUI() {
+        clearTimeout(sizeCalcTimer);
+        sizeCalcSeq++;
+        latestOutputBlob = null;
+        elements.destSize.textContent = '-';
+        elements.savingsTag.classList.add('hidden');
+    }
+
+    function applyOutputSizeUI(sizeInBytes) {
+        elements.destSize.textContent = formatBytes(sizeInBytes);
+        if (originalFile && originalFile.size > 0) {
+            const deltaPct = Math.round(((sizeInBytes - originalFile.size) / originalFile.size) * 100);
+            if (deltaPct < 0) {
+                elements.savingsTag.textContent = `${deltaPct}%`;
+                elements.savingsTag.className = 'ml-1 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm';
+            } else if (deltaPct > 0) {
+                elements.savingsTag.textContent = `+${deltaPct}%`;
+                elements.savingsTag.className = 'ml-1 bg-amber-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm';
+            } else {
+                elements.savingsTag.textContent = '0%';
+                elements.savingsTag.className = 'ml-1 bg-gray-400 dark:bg-gray-600 text-white px-1.5 py-0.5 rounded-full text-[9px] font-bold shadow-sm';
+            }
+            elements.savingsTag.classList.remove('hidden');
+        } else {
+            elements.savingsTag.classList.add('hidden');
+        }
+    }
+
+    function scheduleOutputSizeUpdate() {
+        latestOutputBlob = null;
+        clearTimeout(sizeCalcTimer);
+        const seq = ++sizeCalcSeq;
+        if (!image || !validateConfig().valid || elements.canvas.width <= 0 || elements.canvas.height <= 0) {
+            elements.destSize.textContent = '-';
+            elements.savingsTag.classList.add('hidden');
+            return;
+        }
+        if (state.enlShowGuides) return;
+        elements.destSize.textContent = '…';
+        const targetVersion = canvasRenderVersion;
+        sizeCalcTimer = setTimeout(() => {
+            const format = elements.outFormat.value;
+            const quality = parseFloat(elements.quality.value);
+            elements.canvas.toBlob((blob) => {
+                if (seq !== sizeCalcSeq || !blob) return;
+                latestOutputBlob = { blob, version: targetVersion, format, quality };
+                applyOutputSizeUI(blob.size);
+            }, format, quality);
+        }, 250);
+    }
+
     elements.fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -504,7 +761,7 @@
                 image = img;
                 elements.downloadBtn.disabled = false;
                 elements.balbinoMode.disabled = false;
-                elements.balbinoMode.className = "text-[10px] bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-bold px-2 py-1 rounded-full border border-amber-200 dark:border-amber-800 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors flex items-center gap-1 shadow-sm";
+                elements.balbinoMode.className = BALBINO_ENABLED_CLASS;
                 
                 // Activar secciones de control
                 [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.remove('section-disabled'));
@@ -516,7 +773,7 @@
                 
                 // Resetear todo al cargar nueva imagen (encuadre, efectos, etc)
                 factoryReset();
-                updateCanvas();
+                triggerBalbinoShine();
             };
             img.src = event.target.result;
         };
@@ -531,6 +788,8 @@
     }
 
     function factoryReset() {
+        clearTimeout(balbinoNoticeTimer);
+        elements.balbinoNotice.classList.add('hidden');
         state.zoom = 1; state.panX = 0; state.panY = 0;
         state.enlActive = false;
         state.enlAxis = 'x';
@@ -542,17 +801,24 @@
         elements.enlPower.value = 2.0;
         elements.zoom.value = 1; elements.aspectRatio.value = 'free';
         elements.customRatioToggle.checked = false; elements.customRatioInputs.classList.add('hidden');
+        elements.customW.value = 16; elements.customH.value = 9;
         elements.aspectRatio.disabled = false; 
         elements.circleCrop.checked = false;
-        elements.feather.value = 0; elements.radius.value = 0;
+        elements.feather.value = 0; elements.featherInput.value = 0;
+        elements.radius.value = 0; elements.radiusInput.value = 0;
         elements.exportAnchor.value = 'height'; elements.exportSize.value = 1080;
         elements.exportSize.disabled = false; elements.outFormat.value = 'image/png';
         elements.scalingMethod.value = 'high'; elements.quality.value = 0.8;
         
         if (!image) {
             elements.balbinoMode.disabled = true;
-            elements.balbinoMode.className = "text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed transition-all flex items-center gap-1 shadow-sm";
+            elements.balbinoMode.className = BALBINO_DISABLED_CLASS;
+            elements.canvas.classList.remove('canvas-checkerboard');
             [elements.framingSection, elements.effectsSection, elements.exportSection].forEach(s => s.classList.add('section-disabled'));
+            resetOutputSizeUI();
+        } else {
+            elements.balbinoMode.disabled = false;
+            elements.balbinoMode.className = BALBINO_ENABLED_CLASS;
         }
         updateUI();
         updateCanvas();
@@ -560,19 +826,27 @@
 
     function calculateDimensions() {
         if (!image) return { outWidth: 0, outHeight: 0 };
-        let ratioVal = elements.aspectRatio.value;
+        let currentRatio;
         if (elements.customRatioToggle.checked) {
-            const cw = parseFloat(elements.customW.value), ch = parseFloat(elements.customH.value);
-            if (cw > 0 && ch > 0) ratioVal = cw / ch;
+            const cw = Number(elements.customW.value), ch = Number(elements.customH.value);
+            if (!Number.isFinite(cw) || !Number.isFinite(ch) || cw <= 0 || ch <= 0) {
+                return { outWidth: 0, outHeight: 0 };
+            }
+            currentRatio = cw / ch;
+        } else {
+            currentRatio = parseRatioValue(elements.aspectRatio.value);
         }
-        const currentRatio = (ratioVal === 'free') ? (image.width / image.height) : parseFloat(ratioVal);
-        const anchor = elements.exportAnchor.value, targetSize = parseFloat(elements.exportSize.value);
-        let outWidth, outHeight;
 
-        if (anchor === 'original') { outHeight = image.height; outWidth = outHeight * currentRatio; }
-        else if (anchor === 'height') { outHeight = targetSize; outWidth = outHeight * currentRatio; }
-        else if (anchor === 'width') { outWidth = targetSize; outHeight = outWidth / currentRatio; }
-        else if (anchor === 'longest') { if (currentRatio >= 1) { outWidth = targetSize; outHeight = outWidth / currentRatio; } else { outHeight = targetSize; outWidth = outHeight * currentRatio; } }
+        const anchor = elements.exportAnchor.value;
+        const targetSize = Number(elements.exportSize.value);
+        if (anchor !== 'original' && (!Number.isFinite(targetSize) || targetSize < 1 || targetSize > MAX_CANVAS_SIZE)) {
+            return { outWidth: 0, outHeight: 0 };
+        }
+
+        const { outWidth, outHeight } = computeRawDimensions(currentRatio, anchor, targetSize);
+        if (!Number.isFinite(outWidth) || !Number.isFinite(outHeight) || outWidth < 1 || outHeight < 1 || outWidth > MAX_CANVAS_SIZE || outHeight > MAX_CANVAS_SIZE) {
+            return { outWidth: 0, outHeight: 0 };
+        }
         return { outWidth, outHeight };
     }
 
@@ -627,6 +901,7 @@
     function autoSelectANLAxis() {
         if (!image) return;
         const { outWidth, outHeight } = calculateDimensions();
+        if (outWidth <= 0 || outHeight <= 0) return;
         const destRatio = outWidth / outHeight;
         const origRatio = image.width / image.height;
 
@@ -643,19 +918,27 @@
     function updateUI() {
         if (!image) return;
 
+        const { valid } = validateConfig();
+        elements.downloadBtn.disabled = !image || !valid;
+        elements.canvas.classList.toggle(
+            'canvas-checkerboard',
+            Boolean(image) && elements.outFormat.value !== 'image/jpeg'
+        );
+
         const { outWidth, outHeight } = calculateDimensions();
-        const minDim = Math.min(outWidth, outHeight);
+        if (valid && outWidth > 0 && outHeight > 0) {
+            const minDim = Math.min(outWidth, outHeight);
+            const maxRadius = Math.round(minDim / 2);
+            const maxFeather = Math.round(minDim / 5);
 
-        const maxRadius = Math.round(minDim / 2);
-        const maxFeather = Math.round(minDim / 5);
-        
-        elements.radius.max = maxRadius;
-        elements.radiusInput.max = maxRadius;
-        elements.feather.max = maxFeather;
-        elements.featherInput.max = maxFeather;
+            elements.radius.max = maxRadius;
+            elements.radiusInput.max = maxRadius;
+            elements.feather.max = maxFeather;
+            elements.featherInput.max = maxFeather;
 
-        if (parseInt(elements.radius.value) > maxRadius) elements.radius.value = maxRadius;
-        if (parseInt(elements.feather.value) > maxFeather) elements.feather.value = maxFeather;
+            if (parseInt(elements.radius.value) > maxRadius) elements.radius.value = maxRadius;
+            if (parseInt(elements.feather.value) > maxFeather) elements.feather.value = maxFeather;
+        }
 
         elements.zoomVal.textContent = Math.round(state.zoom * 100) + '%';
         elements.featherLabel.textContent = elements.feather.value + 'px';
@@ -673,11 +956,12 @@
         elements.enlBiasXContainer.classList.toggle('hidden', state.enlAxis !== 'x');
         elements.enlBiasYContainer.classList.toggle('hidden', state.enlAxis !== 'y');
 
-        // Deshabilitar ENL si el ratio es libre (original)
+        // Deshabilitar ENL si el ratio es libre (original) o si la configuración no es válida
         const isFree = elements.aspectRatio.value === 'free' && !elements.customRatioToggle.checked;
-        elements.fitENL.disabled = isFree;
-        elements.fitENL.style.opacity = isFree ? '0.5' : '1';
-        elements.fitENL.style.cursor = isFree ? 'not-allowed' : 'pointer';
+        const disableENL = isFree || !valid;
+        elements.fitENL.disabled = disableENL;
+        elements.fitENL.style.opacity = disableENL ? '0.5' : '1';
+        elements.fitENL.style.cursor = disableENL ? 'not-allowed' : 'pointer';
         if (isFree && state.enlActive) {
             state.enlActive = false;
             elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
@@ -695,31 +979,48 @@
         elements.quality.disabled = isPng;
     }
 
-    function drawPath(c, w, h, r, isCircle) {
+    function drawPath(c, w, h, r, isCircle, x = 0, y = 0) {
         c.beginPath();
         if (isCircle) {
-            c.ellipse(w/2, h/2, w/2, h/2, 0, 0, 2 * Math.PI);
+            c.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, 2 * Math.PI);
         } else {
-            const clampedR = Math.min(r, Math.min(w, h) / 2);
-            c.moveTo(clampedR, 0);
-            c.lineTo(w - clampedR, 0);
-            c.quadraticCurveTo(w, 0, w, clampedR);
-            c.lineTo(w, h - clampedR);
-            c.quadraticCurveTo(w, h, w - clampedR, h);
-            c.lineTo(clampedR, h);
-            c.quadraticCurveTo(0, h, 0, h - clampedR);
-            c.lineTo(0, clampedR);
-            c.quadraticCurveTo(0, 0, clampedR, 0);
+            const clampedR = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+            c.moveTo(x + clampedR, y);
+            c.lineTo(x + w - clampedR, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + clampedR);
+            c.lineTo(x + w, y + h - clampedR);
+            c.quadraticCurveTo(x + w, y + h, x + w - clampedR, y + h);
+            c.lineTo(x + clampedR, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - clampedR);
+            c.lineTo(x, y + clampedR);
+            c.quadraticCurveTo(x, y, x + clampedR, y);
         }
         c.closePath();
+    }
+
+    function drawENLGuidesRect(x, y, w, h) {
+        ctx.save();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.strokeRect(x, y, w, h);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#4ade80';
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(x, y, w, h);
+        ctx.restore();
     }
 
     function updateCanvas() {
         if (!image) return;
         const { outWidth, outHeight } = calculateDimensions();
-        if (outWidth <= 0 || outHeight <= 0) return;
+        if (outWidth <= 0 || outHeight <= 0) {
+            resetOutputSizeUI();
+            return;
+        }
 
-        const feather = parseInt(elements.feather.value), borderRadius = parseInt(elements.radius.value);
+        canvasRenderVersion++;
+        const feather = parseInt(elements.feather.value) || 0;
+        const borderRadius = parseInt(elements.radius.value) || 0;
         const isCircle = elements.circleCrop.checked;
 
         elements.canvas.width = outWidth; elements.canvas.height = outHeight;
@@ -776,61 +1077,24 @@
                 const vScale = imgDrawHeight / image.height;
                 const slicesX = getNLSSlices(numSlices, image.width, imgDrawWidth, safe, biasX, vScale, power);
                 slicesX.forEach(sx => {
-                    ctx.drawImage(image, sx.start, 0, sx.size, image.height, 
-                        startX + sx.targetStart, 
-                        startY, 
-                        sx.targetSize + 0.5, 
-                        imgDrawHeight);
+                    const x0 = Math.round(startX + sx.targetStart);
+                    const x1 = Math.round(startX + sx.targetStart + sx.targetSize);
+                    const drawW = x1 - x0;
+                    if (drawW > 0) {
+                        ctx.drawImage(image, sx.start, 0, sx.size, image.height, x0, startY, drawW, imgDrawHeight);
+                    }
                 });
-                
-                // Dibujar guías de zona segura de alta visibilidad
-                if (state.enlShowGuides) {
-                    ctx.save();
-                    const safeW = (imgDrawWidth * (safe / 100));
-                    const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
-                    
-                    // Sombra/Borde negro para contraste
-                    ctx.lineWidth = 4;
-                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                    ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
-                    
-                    // Línea verde neón prominente
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#4ade80';
-                    ctx.setLineDash([8, 4]);
-                    ctx.strokeRect(safeX, startY, safeW, imgDrawHeight);
-                    ctx.restore();
-                }
-
             } else {
                 const hScale = imgDrawWidth / image.width;
                 const slicesY = getNLSSlices(numSlices, image.height, imgDrawHeight, safe, biasY, hScale, power);
                 slicesY.forEach(sy => {
-                    ctx.drawImage(image, 0, sy.start, image.width, sy.size, 
-                        startX, 
-                        startY + sy.targetStart, 
-                        imgDrawWidth, 
-                        sy.targetSize + 0.5);
+                    const y0 = Math.round(startY + sy.targetStart);
+                    const y1 = Math.round(startY + sy.targetStart + sy.targetSize);
+                    const drawH = y1 - y0;
+                    if (drawH > 0) {
+                        ctx.drawImage(image, 0, sy.start, image.width, sy.size, startX, y0, imgDrawWidth, drawH);
+                    }
                 });
-
-                // Guías horizontales de alta visibilidad
-                if (state.enlShowGuides) {
-                    ctx.save();
-                    const safeH = (imgDrawHeight * (safe / 100));
-                    const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
-                    
-                    // Sombra/Borde negro para contraste
-                    ctx.lineWidth = 4;
-                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                    ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
-                    
-                    // Línea verde neón prominente
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#4ade80';
-                    ctx.setLineDash([8, 4]);
-                    ctx.strokeRect(startX, safeY, imgDrawWidth, safeH);
-                    ctx.restore();
-                }
             }
         } else {
             ctx.drawImage(image, startX, startY, imgDrawWidth, imgDrawHeight);
@@ -838,13 +1102,53 @@
         ctx.restore();
 
         if (feather > 0) {
+            const inset = feather;
+            const sigma = feather / 3;
+            const innerW = Math.max(1, outWidth - inset * 2);
+            const innerH = Math.max(1, outHeight - inset * 2);
+            const innerRadius = Math.max(0, borderRadius - inset);
+
+            maskCanvas.width = outWidth;
+            maskCanvas.height = outHeight;
+            maskCtx.clearRect(0, 0, outWidth, outHeight);
+            maskCtx.save();
+            maskCtx.filter = `blur(${sigma}px)`;
+            maskCtx.fillStyle = '#000000';
+            drawPath(maskCtx, innerW, innerH, innerRadius, isCircle, inset, inset);
+            maskCtx.fill();
+            maskCtx.restore();
+
             ctx.save();
             ctx.globalCompositeOperation = 'destination-in';
-            ctx.filter = `blur(${feather}px)`;
-            drawPath(ctx, outWidth, outHeight, borderRadius, isCircle);
-            ctx.fill();
+            ctx.drawImage(maskCanvas, 0, 0);
             ctx.restore();
         }
+
+        if (elements.outFormat.value === 'image/jpeg') {
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, outWidth, outHeight);
+            ctx.restore();
+        }
+
+        // Dibujar guías temporales ANL tras los efectos para mantenerlas nítidas en vista previa
+        if (state.enlActive && state.enlShowGuides) {
+            const safe = parseFloat(elements.enlSafe.value);
+            if (state.enlAxis === 'x') {
+                const biasX = parseFloat(elements.enlBiasX.value);
+                const safeW = imgDrawWidth * (safe / 100);
+                const safeX = startX + (imgDrawWidth / 2) + (biasX / 100 * (imgDrawWidth * (1 - safe / 100))) - (safeW / 2);
+                drawENLGuidesRect(safeX, startY, safeW, imgDrawHeight);
+            } else {
+                const biasY = parseFloat(elements.enlBiasY.value);
+                const safeH = imgDrawHeight * (safe / 100);
+                const safeY = startY + (imgDrawHeight / 2) + (biasY / 100 * (imgDrawHeight * (1 - safe / 100))) - (safeH / 2);
+                drawENLGuidesRect(startX, safeY, imgDrawWidth, safeH);
+            }
+        }
+
+        scheduleOutputSizeUpdate();
     }
 
     function updateGuides(e) {
@@ -910,10 +1214,19 @@
         if (state.enlActive && (el === elements.aspectRatio || el === elements.customW || el === elements.customH)) autoSelectANLAxis();
         updateUI(); updateCanvas(); 
     }));
+    [elements.customW, elements.customH, elements.exportSize].forEach(el => {
+        const validateOnCommit = () => {
+            const { valid } = validateConfig({ showEmptyErrors: true, announce: true });
+            elements.downloadBtn.disabled = !image || !valid;
+        };
+        el.addEventListener('blur', validateOnCommit);
+        el.addEventListener('change', validateOnCommit);
+    });
     elements.customRatioToggle.addEventListener('change', (e) => { 
         elements.aspectRatio.disabled = e.target.checked; 
         elements.customRatioInputs.classList.toggle('hidden', !e.target.checked); 
         if (state.enlActive) autoSelectANLAxis();
+        updateUI();
         updateCanvas(); 
     });
     elements.zoom.addEventListener('input', (e) => { state.zoom = parseFloat(e.target.value); updateUI(); updateCanvas(); });
@@ -935,6 +1248,7 @@
         elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
         elements.enlSettings.classList.add('hidden');
         const { outWidth, outHeight } = calculateDimensions();
+        if (outWidth <= 0 || outHeight <= 0) return;
         const scaleX = outWidth / image.width, scaleY = outHeight / image.height;
         state.zoom = Math.min(scaleX, scaleY) / Math.max(scaleX, scaleY);
         state.panX = 0; state.panY = 0; elements.zoom.value = state.zoom; updateUI(); updateCanvas();
@@ -986,17 +1300,34 @@
 
     elements.balbinoMode.addEventListener('click', () => {
         if (!image) return;
+        state.enlActive = false;
+        state.enlShowGuides = false;
+        state.stretchActive = false;
+        elements.fitENL.classList.remove('bg-indigo-600', 'text-white');
+        elements.enlSettings.classList.add('hidden');
+        elements.enlSafe.value = 30;
+        elements.enlBiasX.value = 0;
+        elements.enlBiasY.value = 0;
+        elements.enlPower.value = 2.0;
+        elements.circleCrop.checked = false;
+        elements.feather.value = 0; elements.featherInput.value = 0;
+        elements.radius.value = 0; elements.radiusInput.value = 0;
+
         elements.customRatioToggle.checked = false; elements.customRatioInputs.classList.add('hidden');
-        elements.aspectRatio.disabled = false; elements.aspectRatio.value = '1.7777';
-        elements.exportAnchor.value = 'height'; elements.exportSize.value = 1080;
+        elements.aspectRatio.disabled = false; elements.aspectRatio.value = '16:9';
+        elements.exportAnchor.value = 'height'; elements.exportSize.disabled = false; elements.exportSize.value = 1080;
         elements.outFormat.value = 'image/webp'; elements.quality.value = 0.8;
         elements.scalingMethod.value = 'high'; state.zoom = 1; state.panX = 0; state.panY = 0; elements.zoom.value = 1;
+
+        triggerBalbinoShine();
         updateUI(); updateCanvas();
-        elements.balbinoNotice.classList.remove('hidden'); setTimeout(() => elements.balbinoNotice.classList.add('hidden'), 5000);
+        clearTimeout(balbinoNoticeTimer);
+        elements.balbinoNotice.classList.remove('hidden');
+        balbinoNoticeTimer = setTimeout(() => elements.balbinoNotice.classList.add('hidden'), 5000);
     });
 
-    elements.outFormat.addEventListener('change', updateUI);
-    elements.quality.addEventListener('input', updateUI);
+    elements.outFormat.addEventListener('change', () => { updateUI(); updateCanvas(); });
+    elements.quality.addEventListener('input', () => { canvasRenderVersion++; updateUI(); scheduleOutputSizeUpdate(); });
     elements.quickSizeBtns.forEach(btn => btn.addEventListener('click', () => { elements.exportAnchor.value = 'height'; elements.exportSize.value = btn.dataset.size; updateUI(); updateCanvas(); }));
 
     elements.canvas.addEventListener('wheel', (e) => {
@@ -1032,16 +1363,29 @@
     }, { passive: false });
 
     elements.downloadBtn.addEventListener('click', () => {
-        if (!image) return;
-        const format = elements.outFormat.value, quality = parseFloat(elements.quality.value), dataUrl = elements.canvas.toDataURL(format, quality);
-        const stringLength = dataUrl.split(',')[1].length, sizeInBytes = Math.floor(stringLength * 3 / 4);
-        elements.destSize.textContent = formatBytes(sizeInBytes);
-        if (originalFile) {
-            const savings = Math.round((1 - (sizeInBytes / originalFile.size)) * 100);
-            if (savings > 0) { elements.savingsTag.textContent = `-${savings}%`; elements.savingsTag.classList.remove('hidden'); }
-            else { elements.savingsTag.classList.add('hidden'); }
+        if (!image || !validateConfig({ showEmptyErrors: true, announce: true }).valid) return;
+        if (state.enlShowGuides) {
+            state.enlShowGuides = false;
+            updateCanvas();
         }
-        const link = document.createElement('a'); link.download = `img_tools_${Date.now()}.${format.split('/')[1]}`; link.href = dataUrl; link.click();
+        const format = elements.outFormat.value;
+        const quality = parseFloat(elements.quality.value);
+        const triggerBlobDownload = (blob) => {
+            applyOutputSizeUI(blob.size);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `img_tools_${Date.now()}.${format.split('/')[1]}`;
+            link.href = url;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+        if (latestOutputBlob && latestOutputBlob.version === canvasRenderVersion && latestOutputBlob.format === format && latestOutputBlob.quality === quality) {
+            triggerBlobDownload(latestOutputBlob.blob);
+            return;
+        }
+        elements.canvas.toBlob((blob) => {
+            if (blob) triggerBlobDownload(blob);
+        }, format, quality);
     });
 
     elements.resetAllBtn.addEventListener('click', factoryReset);
@@ -1058,7 +1402,7 @@
     elements.infoModal.addEventListener('click', (e) => { if(e.target === elements.infoModal) elements.infoModal.classList.add('hidden'); });
     window.addEventListener('resize', () => { if(image) updateCanvas(); });
 
-    const APP_VERSION = 'v2.0.0-beta.1';
+    const APP_VERSION = 'v2.0.0-beta.2';
     const APP_BUILD_DATE = '15/11/2026';
 
     const versionBadge = document.getElementById('app-version-badge');

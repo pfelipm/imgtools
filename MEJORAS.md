@@ -6,49 +6,49 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
 
 ## 1. Corrección de Bugs y Casos Borde (Prioridad Alta)
 
-- [ ] **Truncamiento de 1 píxel en relaciones de aspecto periódicas (`1919×1080` en vez de `1920×1080`, incluido el Modo BalBino)**
-  - **Ubicación:** `index.html` (opciones de `<select id="aspectRatio">` en líneas ~163–171, `calculateDimensions()` en líneas ~558–574, `updateCanvas()` en líneas ~722–726 y `balbinoMode` en línea ~987).
+- [x] **Truncamiento de 1 píxel en relaciones de aspecto periódicas (`1919×1080` en vez de `1920×1080`, incluido el Modo BalBino)** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (opciones de `<select id="aspectRatio">`, `parseRatioValue()`, `computeRawDimensions()`, `calculateDimensions()` y `balbinoMode`).
   - **Causa raíz:** Los ratios `4:3`, `16:9` y `21:9` están codificados como decimales truncados (`1.3333`, `1.7777`, `2.3333`). Para `1080p`, `1080 * 1.7777 = 1919.916`; al asignarlo a `elements.canvas.width = outWidth` (entero sin signo WebIDL), el navegador trunca a **`1919 px`**, mientras que `#destRes` usa `Math.round(outWidth)` y muestra **`1920 x 1080 px`**. Afecta igualmente a `4:3` (`1439×1080`), `21:9` (`2519×1080`) y a dimensiones fraccionarias sin redondear.
   - **Solución propuesta:** Codificar los valores del `<select>` como razones exactas (`"4:3"`, `"16:9"`, `"16:10"`, `"21:9"`, `"21:10"`) evaluadas mediante división real (`w / h`), actualizar `balbinoMode` a `"16:9"` y devolver siempre enteros redondeados en `calculateDimensions()`:
     ```javascript
     return { outWidth: Math.round(outWidth), outHeight: Math.round(outHeight) };
     ```
 
-- [ ] **El botón "Adaptar (no lineal)" queda bloqueado al activar relación personalizada desde "Libre (original)"**
-  - **Ubicación:** `index.html` (`updateUI()` en líneas ~674–677 y listener de `customRatioToggle` en líneas ~910–915).
+- [x] **El botón "Adaptar (no lineal)" queda bloqueado al activar relación personalizada desde "Libre (original)"** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (`updateUI()` y listener de `customRatioToggle`).
   - **Problema:** Al cargar una imagen, `aspectRatio` vale `'free'` y `updateUI()` deshabilita `#fitENL` (`disabled = true`, `opacity: 0.5`). Al marcar la casilla *Personalizada (ancho:alto)*, su listener ejecuta `updateCanvas()` pero omite llamar a `updateUI()`, dejando el botón *Adaptar (no lineal)* bloqueado hasta que el usuario interactúa con otro control.
   - **Solución propuesta:** Invocar `updateUI()` antes de `updateCanvas()` dentro del listener `change` de `customRatioToggle`.
 
-- [ ] **El "Modo BalBino" no limpia estados de deformación previos ni aplica su estilo dorado `.balbino-glow`**
-  - **Ubicación:** `index.html` (CSS `.balbino-glow` en líneas ~68–76, activación en línea ~504 y manejador click en líneas ~984–993).
+- [x] **El "Modo BalBino" no limpia estados de deformación previos ni aplica su estilo dorado `.balbino-glow`** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (CSS `.balbino-glow`, activación en `fileInput`/`factoryReset` y manejador click de `balbinoMode`).
   - **Problema 1:** Pulsar `#balbinoMode` no resetea `state.stretchActive` ni `state.enlActive` (ni oculta `#enlSettings`), y tampoco recalcula `autoSelectANLAxis()` si ANL estaba activo con otro eje; además, si había recorte circular, esquinas o suavizado activos, los conserva en una cabecera pensada para WordPress. Tampoco limpia el `setTimeout` previo del aviso `#balbinoNotice`.
   - **Problema 2:** La animación dorada `.balbino-glow` definida en `<style>` (descrita en `README.md` como *"Un botón dorado"*) nunca se asigna al botón `#balbinoMode`.
-  - **Solución propuesta:** Restablecer `state.enlActive = false`, `state.stretchActive = false`, ocultar `#enlSettings`, poner a cero efectos de borde/círculo, guardar el ID del temporizador con `clearTimeout` y aplicar la clase `balbino-glow` cuando hay imagen cargada.
+  - **Solución propuesta:** Restablecer `state.enlActive = false`, `state.stretchActive = false`, ocultar `#enlSettings`, poner a cero efectos de borde/círculo, guardar el ID del temporizador con `clearTimeout` y aplicar la clase `balbino-glow` cuando hay imagen cargada (respetando `prefers-reduced-motion`).
 
-- [ ] **El suavizado perimetral (*feather*) no llega a opacidad 0% en el borde exterior del lienzo**
-  - **Ubicación:** `index.html` (`updateCanvas()` en líneas ~837–844).
+- [x] **El suavizado perimetral (*feather*) no llega a opacidad 0% en el borde exterior del lienzo** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (`updateCanvas()`, canvas auxiliar `maskCanvas`).
   - **Causa raíz:** La máscara con `globalCompositeOperation = 'destination-in'` y `ctx.filter = blur(...)` se rellena exactamente hasta los bordes `[0, outWidth] × [0, outHeight]`. Como la mitad del kernel gaussiano cae fuera del lienzo, la opacidad en el perímetro exterior queda cortada al ~50% generando un escalón visible en vez de desvanecerse suavemente a transparente.
-  - **Solución propuesta:** Retranquear (*inset*) el trazado de la máscara en una distancia proporcional al radio de desenfoque (p. ej. `inset = feather`, ajustando el radio de esquina como `Math.max(0, borderRadius - inset)` y aplicando `blur(${feather / 2}px)` en un canvas auxiliar para máxima compatibilidad con Safari/WebKit).
+  - **Solución propuesta:** Retranquear (*inset*) el trazado de la máscara en una distancia proporcional al radio de desenfoque (`inset = feather`, ajustando el radio de esquina como `Math.max(0, borderRadius - inset)` y aplicando `blur(${feather / 3}px)` en un canvas auxiliar para llegar a opacidad 0% real en todo el perímetro).
 
-- [ ] **Discrepancia entre fondo blanco en vista previa y fondo negro al exportar a JPG con transparencias**
-  - **Ubicación:** `index.html` (CSS `canvas` en líneas ~44–52, `updateCanvas()` en línea ~728 y descarga en línea ~1033).
+- [x] **Discrepancia entre fondo blanco en vista previa y fondo negro al exportar a JPG con transparencias** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (CSS `.canvas-checkerboard`, `updateUI()` y `updateCanvas()`).
   - **Problema:** El buffer del canvas se limpia con `ctx.clearRect()` (transparente), pero el CSS pinta `background-color: white` en modo claro y `#000` en modo oscuro. Cuando hay zonas transparentes (*Contener*, *Radio de esquinas*, *Recorte circular*, *Suavizado* o PNG transparente) y se exporta a `JPG` (sin canal alfa), el navegador convierte el transparente en **negro puro (`#000000`)**, contradiciendo lo visto en pantalla en modo claro.
-  - **Solución propuesta:** Mostrar un patrón damero CSS para formatos con transparencia (`PNG`/`WEBP`) y pintar explícitamente un color de relleno en el `<canvas>` cuando el formato sea `image/jpeg` (blanco por defecto o elegible por el usuario).
+  - **Solución propuesta:** Mostrar un patrón damero CSS para formatos con transparencia (`PNG`/`WEBP`) y pintar explícitamente fondo blanco (`#ffffff` con `destination-over`) en el `<canvas>` cuando el formato sea `image/jpeg`.
 
-- [ ] **Artefactos verticales/horizontales en imágenes con semitransparencia al usar Adaptación No Lineal (ANL)**
-  - **Ubicación:** `index.html` (`updateCanvas()` en líneas ~775–781 y ~805–811).
+- [x] **Artefactos verticales/horizontales en imágenes con semitransparencia al usar Adaptación No Lineal (ANL)** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (`updateCanvas()`).
   - **Causa raíz:** Para tapar huecos subpíxel entre las 60 rebanadas, cada `ctx.drawImage` suma `+ 0.5` px al ancho/alto de destino (`sx.targetSize + 0.5`). En PNG/WebP con sombras o zonas semitransparentes, ese solapamiento de `0.5 px` duplica el canal alfa en las 59 uniones, dibujando una rejilla visible.
-  - **Solución propuesta:** Alinear las coordenadas de destino de cada rebanada a píxeles enteros contiguos (`const x0 = Math.round(startX + sx.targetStart); const x1 = Math.round(startX + sx.targetStart + sx.targetSize);` dibujando con ancho `x1 - x0`).
+  - **Solución propuesta:** Alinear las coordenadas de destino de cada rebanada a píxeles enteros contiguos (`const x0 = Math.round(startX + sx.targetStart); const x1 = Math.round(startX + sx.targetStart + sx.targetSize);` dibujando con ancho `x1 - x0` y análogo en eje Y).
 
-- [ ] **El peso de salida y el porcentaje de ahorro no se actualizan en tiempo real y quedan obsoletos**
-  - **Ubicación:** `index.html` (líneas ~511, ~530–556, ~995–996 y ~1031–1041) y `README.md` (línea ~85).
+- [x] **El peso de salida y el porcentaje de ahorro no se actualizan en tiempo real y quedan obsoletos** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (`scheduleOutputSizeUpdate()`, `applyOutputSizeUI()`, `resetOutputSizeUI()`, listeners `#outFormat`/`#quality`/`#downloadBtn`).
   - **Problema:** Pese a figurar como *"Información en tiempo real"* en `README.md`, `#destSize` y `#savingsTag` solo se calculan al pulsar *Descargar imagen*, no se limpian al pulsar *Restablecer todos los ajustes* y quedan desactualizados si después de descargar se cambia formato, calidad o tamaño. Además, si el archivo exportado pesa más que el original (`savings <= 0`), la etiqueta simplemente se oculta sin advertir del incremento.
-  - **Solución propuesta:** Calcular el tamaño de salida de forma asíncrona con `canvas.toBlob()` y *debounce* (`~250 ms`) ante cualquier cambio de lienzo, formato o calidad (cancelando cálculos obsoletos mediante contador de versión), mostrando insignia verde (`-X%`) si ahorra peso y ámbar (`+X%`) si aumenta.
+  - **Solución propuesta:** Calcular el tamaño de salida de forma asíncrona con `canvas.toBlob()` y *debounce* (`250 ms`) ante cualquier cambio de lienzo, formato o calidad (cancelando cálculos obsoletos mediante contador de secuencia), mostrando insignia verde (`-X%`) si ahorra peso y ámbar (`+X%`) si aumenta.
 
-- [ ] **Mensajes de validación `#ratioError` y `#exportError` inactivos (código muerto) y falta de tope máximo de lienzo**
-  - **Ubicación:** `index.html` (líneas ~181, ~307, ~417, ~451 y `calculateDimensions()` en líneas ~558–574).
+- [x] **Mensajes de validación `#ratioError` y `#exportError` inactivos (código muerto) y falta de tope máximo de lienzo** *(implementado en `v2.0.0-beta.2`)*
+  - **Ubicación:** `index.html` (`validateConfig()`, `setFieldErrorState()`, `calculateDimensions()` y atributos ARIA en `#customW`, `#customH`, `#exportSize`).
   - **Problema:** `#ratioError` y `#exportError` existen en el HTML y en `elements`, pero ningún código los muestra cuando el usuario escribe `0`, valores negativos o deja el campo vacío; tampoco se limita `exportSize` al máximo soportado por el navegador (`16384 px` en Canvas 2D estándar), pudiendo dejar el lienzo en blanco o agotar memoria.
-  - **Solución propuesta:** Validar rangos (`1–16384 px` en tamaño; `> 0` en ratio personalizado), mostrar/ocultar `#ratioError` y `#exportError` y deshabilitar `#downloadBtn` mientras la configuración sea inválida.
+  - **Solución propuesta:** Validar rangos (`1–16384 px` en tamaño y dimensiones resultantes; `> 0` en ratio personalizado), sincronizar `aria-invalid`/`aria-describedby` junto a `#ratioError`/`#exportError` y deshabilitar `#downloadBtn` mientras la configuración sea inválida.
 
 ---
 
