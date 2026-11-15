@@ -59,33 +59,33 @@ Documento generado a partir de la auditoría técnica de `index.html`, `README.m
   - **Receta global + encuadre individual opcional (`2+` imágenes):** Mostrar una tira o carrusel compacto de miniaturas con contador, botón *Añadir más*, borrado individual y *Vaciar lote*. Los ajustes de encuadre base, **🚀 Modo BalBino**, efectos, dimensiones, formato y calidad actúan como **receta común** para todo el lote, pero cada elemento `batchItems[i]` conserva su propio estado ligero (`zoom`, `panX`, `panY`, modo de ajuste y desplazamiento ANL) para poder corregir en pocos segundos solo las fotos donde el autoencuadre corte un rostro o logotipo.
   - **Exportación secuencial ligera en RAM y empaquetado `.zip`:** Procesar de una en una (`async/await` + `yieldToMain`) con modal y barra de progreso (`Procesando X de N…`), reutilizando un único `<canvas>` en memoria y liberando cada `ObjectURL` tras generar su `Blob`. Empaquetar el resultado en un único archivo `.zip` (mediante `JSZip` fijado con `SRI` como en *PDF Tools* o contenedor `.zip` ligero en modo `STORE` sin recomprimir, más opción de descarga individual) mostrando el peso total antes/después y el porcentaje global de ahorro.
 
-- [ ] **Importación nativa de imágenes vectoriales SVG (`image/svg+xml`) y otros formatos modernos (`AVIF`, `GIF`, `BMP`)**
+- [x] **Importación nativa de imágenes vectoriales SVG (`image/svg+xml`) y otros formatos modernos (`AVIF`, `GIF`, `BMP`)** *(implementado en v2.0.0-beta.4)*
   - **Situación actual:** `#fileInput` (`index.html`, línea ~143) restringe `accept="image/jpeg, image/png, image/webp"`, impidiendo seleccionar archivos `.svg` (así como `.avif`, `.gif` estáticos o `.bmp`).
   - **Particularidades técnicas de SVG en Canvas 2D a cubrir:** Muchos archivos `.svg` carecen de atributos `width`/`height` en píxeles en la raíz (definen solo `viewBox` o porcentajes `100%`), lo que en Firefox devuelve `img.naturalWidth === 0` y en otros navegadores rasteriza a baja resolución si el `viewBox` es pequeño (p. ej. iconos `24×24`).
   - **Solución propuesta:** Al detectar `image/svg+xml` o extensión `.svg`, leer el XML (`file.text()`), validar con `DOMParser`, asegurar `xmlns="http://www.w3.org/2000/svg"`, deducir la relación de aspecto real desde `viewBox` (o `width`/`height`) e inyectar dimensiones numéricas de alta densidad (escalando el lado mayor al menos a `2048 px` o al tamaño de exportación objetivo) en un `Blob` `image/svg+xml;charset=utf-8` cargado vía `<img>` (que aísla scripts/recursos externos evitando *tainted canvas* al exportar a WebP/PNG/JPG).
 
-- [ ] **Carga rápida mediante *Drag & Drop* global y pegado desde el portapapeles (`Ctrl+V`) + "Copiar al portapapeles"**
+- [x] **Carga rápida mediante *Drag & Drop* global y pegado desde el portapapeles (`Ctrl+V`) + "Copiar al portapapeles"** *(implementado en v2.0.0-beta.4)*
   - Permitir arrastrar y soltar una imagen directamente sobre cualquier punto del área de trabajo (`#canvasWrapper` / ventana) con superposición visual de soltado.
   - Escuchar el evento `paste` (`clipboardData.items`) para cargar capturas de pantalla o recortes sin pasar por archivos temporales (respetando campos `<input>` activos).
   - Añadir botón secundario *"Copiar imagen"* junto a *Descargar* usando `navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])` para pegarla al instante en Google Slides, Docs o WordPress.
 
-- [ ] **Selector de relleno de fondo para modo "Contener" y transparencias (Transparente, Color sólido y *Blur-fill* / Fondo desenfocado)**
+- [x] **Selector de relleno de fondo para modo "Contener" y transparencias (Transparente, Color sólido y *Blur-fill* / Fondo desenfocado)** *(implementado en v2.0.0-beta.4)*
   - Al encuadrar fotos verticales o cuadradas en `16:9` con *Contener* (p. ej. fotos de grupo donde no conviene estirar bordes con ANL), permitir elegir entre:
     - **Transparente** (para `PNG`/`WEBP`, con vista previa sobre cuadrícula damero).
     - **Fondo desenfocado (*Blur-fill*):** Dibuja en una capa inferior la propia imagen escalada en modo *Llenar* con `blur(32px)` y ligero oscurecimiento/aclarado ajustable, generando cabeceras editoriales limpias en un clic.
     - **Color sólido** (blanco, negro o selector `<input type="color">`).
 
-- [ ] **Nuevos preajustes rápidos de redes y plataformas educativas (respetando el Modo BalBino)**
+- [x] **Nuevos preajustes rápidos de redes y plataformas educativas (respetando el Modo BalBino)** *(implementado en v2.0.0-beta.4)*
   - Recogiendo la idea abierta en `README.md` (línea ~101), incorporar un desplegable o tira compacta de *Perfiles rápidos* (sin tocar el protagonismo del botón **🚀 Modo BalBino**): p. ej. *LinkedIn Post* (`1200×627`), *LinkedIn Banner* (`1584×396`), *Instagram Cuadrado / Vertical* (`1080×1080` / `1080×1350`), *Miniatura YouTube* (`1280×720`) y *Cabecera Google Classroom / Forms* (`1000×250` / `1600×400`), con opción de guardar un preajuste propio en `localStorage`.
 
-- [ ] **Transformaciones geométricas previas (Rotar 90° izq/der y Voltear horizontal/vertical)**
+- [x] **Transformaciones geométricas previas (Rotar 90° izq/der y Voltear horizontal/vertical)** *(implementado en v2.0.0-beta.4)*
   - Controles compactos de giro en pasos de `90°` y espejo horizontal/vertical antes del encuadre y de la Adaptación No Lineal, muy útiles para corregir fotos móviles o invertir la dirección de la mirada del sujeto en una cabecera.
 
-- [ ] **Vista rápida de comparación Antes / Después y exportación opcional a AVIF**
+- [x] **Vista rápida de comparación Antes / Después y exportación opcional a AVIF** *(implementado en v2.0.0-beta.4)*
   - Botón *"Mantener para ver original"* (o barra espaciadora / tecla rápida) para comparar al instante el encuadre y la distorsión ANL frente a la imagen de origen.
   - Detectar en el arranque si el navegador soporta codificación `image/avif` en `<canvas>` y habilitarlo dinámicamente como opción adicional en `#outFormat`.
 
-- [ ] **Integración opcional *client-side* con Google Drive (abrir origen y guardar cabecera optimizada)**
+- [ ] **Integración opcional *client-side* con Google Drive (abrir origen y guardar cabecera optimizada)** *(en pausa por decisión de alcance, al igual que en PDF Tools)*
   - Siguiendo la misma arquitectura sin servidor planteada en *PDF Tools (SPA)*: **Google Identity Services** + **Google Picker API** con el scope no sensible `https://www.googleapis.com/auth/drive.file` (sin límite de 100 usuarios al pasar a producción ni auditoría CASA), cargando los scripts de Google de forma perezosa solo al pulsar *"Drive"* y ocultándolos si `navigator.onLine === false`.
 
 ---
