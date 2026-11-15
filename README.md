@@ -3,7 +3,7 @@
 > La herramienta definitiva para conseguir que **BalBino** deje de dar la paliza 😘 con las cabeceras del blog de **GEG Spain**.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Versión](https://img.shields.io/badge/Versi%C3%B3n-v2.0.0--beta.6-amber)
+![Versión](https://img.shields.io/badge/Versi%C3%B3n-v2.0.0--beta.7-amber)
 ![Actualizado](https://img.shields.io/badge/Actualizado-15_de_noviembre_de_2026-indigo)
 
 ### 🌐 Acceso temporal a esta versión 2.0 (Beta): [pfelipm.github.io/imgtools](https://pfelipm.github.io/imgtools/)
@@ -91,6 +91,7 @@ Para facilitar el ajuste, ImgTools muestra **guías visuales de alta visibilidad
 
 *   **Formatos de entrada y salida:** importa **JPG**, **PNG**, **WEBP**, **SVG** vectorial (rasterizado limpio a alta densidad sin *tainted canvas*), **AVIF**, **GIF** y **BMP**; exporta en **PNG**, **WEBP**, **JPG** (con fondo blanco en transparencias) y **AVIF** cuando el navegador lo soporta.
 *   **Flujo sin fricción y portapapeles:** carga archivos con *Drag & Drop* en cualquier punto de la ventana, pega capturas o SVG con **`Ctrl+V`**, mantén **Ver original** (o la tecla **`Espacio`**) para comparar al instante y copia la imagen resultante con **Copiar al portapapeles**.
+*   **Procesamiento por lotes (Batch) y exportación `.zip`:** selecciona, arrastra o pega múltiples imágenes (`2+`) para trabajar con una receta global común y tira de miniaturas inferior con encuadre/rotación individual opcional, atajos **`Alt+←`/`→`** y exportación secuencial a un único archivo `.zip` sin recomprimir (*STORE* + CRC-32 en JavaScript puro).
 *   **Motor de escalado:** control total sobre el método de suavizado (progresivo de alta calidad o píxel-art).
 *   **Información en tiempo real:** compara el peso del archivo original con el de salida y visualiza al vuelo el ahorro o incremento porcentual.
 *   **Ajuste fino numérico:** haz clic en cualquier etiqueta de valor (`Zoom`, `Calidad`, `Brillo del fondo`, `Suavizado`, `Radio`, `Zona segura`, `Desplazamiento`, `Transición`) para introducir el valor exacto por teclado.

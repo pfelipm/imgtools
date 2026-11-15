@@ -1,4 +1,4 @@
-const CACHE_NAME = 'imgtools-cache-v2.0.0-beta.6';
+const CACHE_NAME = 'imgtools-cache-v2.0.0-beta.7';
 const SHARED_CACHE_KEY = './__shared-image__';
 const APP_SHELL = [
     './',
@@ -43,19 +43,36 @@ self.addEventListener('fetch', (event) => {
         event.respondWith((async () => {
             try {
                 const formData = await event.request.formData();
-                const file = formData.get('image');
-                if (file && typeof file.arrayBuffer === 'function') {
+                const rawFiles = formData.getAll('image').filter((f) => f && typeof f.arrayBuffer === 'function');
+                if (rawFiles.length > 0) {
                     const cache = await caches.open(CACHE_NAME);
                     const sharedKeyUrl = new URL(SHARED_CACHE_KEY, self.location.href).href;
+                    const firstFile = rawFiles[0];
                     await cache.put(
                         new Request(sharedKeyUrl),
-                        new Response(file, {
+                        new Response(firstFile, {
                             headers: {
-                                'Content-Type': file.type || 'application/octet-stream',
-                                'X-Shared-Name': encodeURIComponent(file.name || 'shared-image')
+                                'Content-Type': firstFile.type || 'application/octet-stream',
+                                'X-Shared-Name': encodeURIComponent(firstFile.name || 'shared-image'),
+                                'X-Shared-Count': String(rawFiles.length)
                             }
                         })
                     );
+                    if (rawFiles.length > 1) {
+                        for (let i = 0; i < rawFiles.length; i++) {
+                            const f = rawFiles[i];
+                            const itemUrl = new URL(`${SHARED_CACHE_KEY}/${i}`, self.location.href).href;
+                            await cache.put(
+                                new Request(itemUrl),
+                                new Response(f, {
+                                    headers: {
+                                        'Content-Type': f.type || 'application/octet-stream',
+                                        'X-Shared-Name': encodeURIComponent(f.name || `shared-image-${i + 1}`)
+                                    }
+                                })
+                            );
+                        }
+                    }
                 }
             } catch (err) {
                 // Continuar la redirección aunque la entrada compartida sea inválida
